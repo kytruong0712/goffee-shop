@@ -3,6 +3,9 @@ package main
 import (
 	"context"
 
+	"github.com/kytruong0712/goffee-shop/api-gateway/internal/appconfig/httpserver/gql"
+	"github.com/kytruong0712/goffee-shop/api-gateway/internal/handler/gql/public"
+
 	"github.com/go-chi/chi/v5"
 )
 
@@ -16,4 +19,7 @@ func (rtr router) routes(r chi.Router) {
 }
 
 func (rtr router) public(r chi.Router) {
+	const prefix = "/gateway/public"
+
+	r.Handle(prefix+"/graphql", gql.Handler(public.NewSchema(), true))
 }

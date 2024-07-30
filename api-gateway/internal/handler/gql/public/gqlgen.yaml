@@ -1,0 +1,20 @@
+schema:
+  - schema/*.graphql
+
+exec:
+  filename: gqlgenerated.go
+  package: public
+
+model:
+  filename: ../mod/models_gen.go
+
+skip_validation: true
+skip_mod_tidy: true
+struct_tag: json
+
+models:
+  Int64:
+    model: github.com/kytruong0712/goffee-shop/api-gateway/internal/appconfig/httpserver/gql/scalar.Int64
+  Time:
+    model: github.com/kytruong0712/goffee-shop/api-gateway/internal/appconfig/httpserver/gql/scalar.Time
+
