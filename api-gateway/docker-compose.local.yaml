@@ -1,0 +1,12 @@
+services:
+  server:
+    container_name: api-gateway-go-local
+    image: golang:latest
+    working_dir: /app
+    volumes:
+      - ./:/app
+    command: go run -mod=vendor cmd/server/main.go cmd/server/router.go
+    ports:
+      - "3003:3003"
+volumes:
+  data:
