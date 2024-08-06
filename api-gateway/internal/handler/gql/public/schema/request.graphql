@@ -1,7 +1,5 @@
-input CustomerSignupRequest {
+input SignupRequest {
     fullName: String!
-    countryCode: String!
     phoneNumber: String!
     password: String!
-    dateOfBirth: Time
 }

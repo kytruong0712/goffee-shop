@@ -2,13 +2,26 @@ package public
 
 import (
 	"context"
+	"github.com/kytruong0712/goffee-shop/api-gateway/internal/controller/user"
+	"log"
 
 	"github.com/kytruong0712/goffee-shop/api-gateway/internal/handler/gql/mod"
 )
 
-func (r *mutationResolver) SignupNewCustomer(ctx context.Context, req mod.CustomerSignupRequest) (*mod.CustomerSignupResponse, error) {
+func (r *mutationResolver) Signup(ctx context.Context, req mod.SignupRequest) (*mod.SignupResponse, error) {
 	// TODO: implement logic here
-	return &mod.CustomerSignupResponse{
-		IamID: 123456,
+	rs, err := r.usrCtrl.Register(ctx, user.RegisterInput{
+		FullName:    req.FullName,
+		PhoneNumber: req.PhoneNumber,
+		Password:    req.Password,
+	})
+
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	return &mod.SignupResponse{
+		IamID: rs.IamID,
 	}, nil
 }

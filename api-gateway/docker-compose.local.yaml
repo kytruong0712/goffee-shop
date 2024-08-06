@@ -1,12 +1,15 @@
 services:
-  server:
+  api-gateway:
     container_name: api-gateway-go-local
     image: golang:latest
-    working_dir: /app
+    working_dir: /api-gateway
     volumes:
-      - ./:/app
-    command: go run -mod=vendor cmd/server/main.go cmd/server/router.go
+      - ./:/api-gateway
+    command: go run -mod=vendor cmd/serverd/main.go cmd/serverd/router.go
     ports:
       - "3003:3003"
+    environment:
+      SERVER_ADDR: ":3003"
+      USER_SERVICE_ADDR: user-service:50051
 volumes:
   data:

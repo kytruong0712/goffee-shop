@@ -2,17 +2,24 @@
 
 package public
 
-import "github.com/99designs/gqlgen/graphql"
+import (
+	"github.com/kytruong0712/goffee-shop/api-gateway/internal/controller/user"
 
-func NewSchema() graphql.ExecutableSchema {
+	"github.com/99designs/gqlgen/graphql"
+)
+
+func NewSchema(usrCtrl user.Controller) graphql.ExecutableSchema {
 	cfg := Config{
-		Resolvers: &resolver{},
+		Resolvers: &resolver{
+			usrCtrl: usrCtrl,
+		},
 	}
 
 	return NewExecutableSchema(cfg)
 }
 
 type resolver struct {
+	usrCtrl user.Controller
 }
 
 func (r *resolver) Mutation() MutationResolver {

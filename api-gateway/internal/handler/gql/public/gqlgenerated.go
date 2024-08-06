@@ -11,12 +11,11 @@ import (
 	"strconv"
 	"sync"
 	"sync/atomic"
-	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	"github.com/kytruong0712/goffee-shop/api-gateway/internal/appconfig/httpserver/gql/scalar"
 	"github.com/kytruong0712/goffee-shop/api-gateway/internal/handler/gql/mod"
+	"github.com/kytruong0712/goffee-shop/api-gateway/internal/infra/protocols/gql/scalar"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -48,20 +47,20 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
-	CustomerSignupResponse struct {
-		IamID func(childComplexity int) int
-	}
-
 	Mutation struct {
-		SignupNewCustomer func(childComplexity int, req mod.CustomerSignupRequest) int
+		Signup func(childComplexity int, req mod.SignupRequest) int
 	}
 
 	Query struct {
 	}
+
+	SignupResponse struct {
+		IamID func(childComplexity int) int
+	}
 }
 
 type MutationResolver interface {
-	SignupNewCustomer(ctx context.Context, req mod.CustomerSignupRequest) (*mod.CustomerSignupResponse, error)
+	Signup(ctx context.Context, req mod.SignupRequest) (*mod.SignupResponse, error)
 }
 
 type executableSchema struct {
@@ -83,24 +82,24 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
-	case "CustomerSignupResponse.iamID":
-		if e.complexity.CustomerSignupResponse.IamID == nil {
+	case "Mutation.signup":
+		if e.complexity.Mutation.Signup == nil {
 			break
 		}
 
-		return e.complexity.CustomerSignupResponse.IamID(childComplexity), true
-
-	case "Mutation.signupNewCustomer":
-		if e.complexity.Mutation.SignupNewCustomer == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_signupNewCustomer_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_signup_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.SignupNewCustomer(childComplexity, args["req"].(mod.CustomerSignupRequest)), true
+		return e.complexity.Mutation.Signup(childComplexity, args["req"].(mod.SignupRequest)), true
+
+	case "SignupResponse.iamID":
+		if e.complexity.SignupResponse.IamID == nil {
+			break
+		}
+
+		return e.complexity.SignupResponse.IamID(childComplexity), true
 
 	}
 	return 0, false
@@ -110,7 +109,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
-		ec.unmarshalInputCustomerSignupRequest,
+		ec.unmarshalInputSignupRequest,
 	)
 	first := true
 
@@ -230,13 +229,13 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
 // region    ***************************** args.gotpl *****************************
 
-func (ec *executionContext) field_Mutation_signupNewCustomer_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_signup_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 mod.CustomerSignupRequest
+	var arg0 mod.SignupRequest
 	if tmp, ok := rawArgs["req"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("req"))
-		arg0, err = ec.unmarshalNCustomerSignupRequest2githubᚗcomᚋkytruong0712ᚋgoffeeᚑshopᚋapiᚑgatewayᚋinternalᚋhandlerᚋgqlᚋmodᚐCustomerSignupRequest(ctx, tmp)
+		arg0, err = ec.unmarshalNSignupRequest2githubᚗcomᚋkytruong0712ᚋgoffeeᚑshopᚋapiᚑgatewayᚋinternalᚋhandlerᚋgqlᚋmodᚐSignupRequest(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -298,8 +297,8 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _CustomerSignupResponse_iamID(ctx context.Context, field graphql.CollectedField, obj *mod.CustomerSignupResponse) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CustomerSignupResponse_iamID(ctx, field)
+func (ec *executionContext) _Mutation_signup(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_signup(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -312,7 +311,7 @@ func (ec *executionContext) _CustomerSignupResponse_iamID(ctx context.Context, f
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.IamID, nil
+		return ec.resolvers.Mutation().Signup(rctx, fc.Args["req"].(mod.SignupRequest))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -324,56 +323,12 @@ func (ec *executionContext) _CustomerSignupResponse_iamID(ctx context.Context, f
 		}
 		return graphql.Null
 	}
-	res := resTmp.(int64)
+	res := resTmp.(*mod.SignupResponse)
 	fc.Result = res
-	return ec.marshalNInt642int64(ctx, field.Selections, res)
+	return ec.marshalNSignupResponse2ᚖgithubᚗcomᚋkytruong0712ᚋgoffeeᚑshopᚋapiᚑgatewayᚋinternalᚋhandlerᚋgqlᚋmodᚐSignupResponse(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CustomerSignupResponse_iamID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "CustomerSignupResponse",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int64 does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_signupNewCustomer(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_signupNewCustomer(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().SignupNewCustomer(rctx, fc.Args["req"].(mod.CustomerSignupRequest))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*mod.CustomerSignupResponse)
-	fc.Result = res
-	return ec.marshalNCustomerSignupResponse2ᚖgithubᚗcomᚋkytruong0712ᚋgoffeeᚑshopᚋapiᚑgatewayᚋinternalᚋhandlerᚋgqlᚋmodᚐCustomerSignupResponse(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_signupNewCustomer(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_signup(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -382,9 +337,9 @@ func (ec *executionContext) fieldContext_Mutation_signupNewCustomer(ctx context.
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "iamID":
-				return ec.fieldContext_CustomerSignupResponse_iamID(ctx, field)
+				return ec.fieldContext_SignupResponse_iamID(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type CustomerSignupResponse", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type SignupResponse", field.Name)
 		},
 	}
 	defer func() {
@@ -394,7 +349,7 @@ func (ec *executionContext) fieldContext_Mutation_signupNewCustomer(ctx context.
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_signupNewCustomer_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_signup_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -525,6 +480,50 @@ func (ec *executionContext) fieldContext_Query___schema(_ context.Context, field
 				return ec.fieldContext___Schema_directives(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Schema", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SignupResponse_iamID(ctx context.Context, field graphql.CollectedField, obj *mod.SignupResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SignupResponse_iamID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IamID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt642int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SignupResponse_iamID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SignupResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int64 does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2303,14 +2302,14 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(_ context.Context
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputCustomerSignupRequest(ctx context.Context, obj interface{}) (mod.CustomerSignupRequest, error) {
-	var it mod.CustomerSignupRequest
+func (ec *executionContext) unmarshalInputSignupRequest(ctx context.Context, obj interface{}) (mod.SignupRequest, error) {
+	var it mod.SignupRequest
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"fullName", "countryCode", "phoneNumber", "password", "dateOfBirth"}
+	fieldsInOrder := [...]string{"fullName", "phoneNumber", "password"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -2324,13 +2323,6 @@ func (ec *executionContext) unmarshalInputCustomerSignupRequest(ctx context.Cont
 				return it, err
 			}
 			it.FullName = data
-		case "countryCode":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("countryCode"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.CountryCode = data
 		case "phoneNumber":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("phoneNumber"))
 			data, err := ec.unmarshalNString2string(ctx, v)
@@ -2345,13 +2337,6 @@ func (ec *executionContext) unmarshalInputCustomerSignupRequest(ctx context.Cont
 				return it, err
 			}
 			it.Password = data
-		case "dateOfBirth":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("dateOfBirth"))
-			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.DateOfBirth = data
 		}
 	}
 
@@ -2365,45 +2350,6 @@ func (ec *executionContext) unmarshalInputCustomerSignupRequest(ctx context.Cont
 // endregion ************************** interface.gotpl ***************************
 
 // region    **************************** object.gotpl ****************************
-
-var customerSignupResponseImplementors = []string{"CustomerSignupResponse"}
-
-func (ec *executionContext) _CustomerSignupResponse(ctx context.Context, sel ast.SelectionSet, obj *mod.CustomerSignupResponse) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, customerSignupResponseImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("CustomerSignupResponse")
-		case "iamID":
-			out.Values[i] = ec._CustomerSignupResponse_iamID(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
 
 var mutationImplementors = []string{"Mutation"}
 
@@ -2424,9 +2370,9 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
-		case "signupNewCustomer":
+		case "signup":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_signupNewCustomer(ctx, field)
+				return ec._Mutation_signup(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -2481,6 +2427,45 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___schema(ctx, field)
 			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var signupResponseImplementors = []string{"SignupResponse"}
+
+func (ec *executionContext) _SignupResponse(ctx context.Context, sel ast.SelectionSet, obj *mod.SignupResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, signupResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SignupResponse")
+		case "iamID":
+			out.Values[i] = ec._SignupResponse_iamID(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2845,25 +2830,6 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) unmarshalNCustomerSignupRequest2githubᚗcomᚋkytruong0712ᚋgoffeeᚑshopᚋapiᚑgatewayᚋinternalᚋhandlerᚋgqlᚋmodᚐCustomerSignupRequest(ctx context.Context, v interface{}) (mod.CustomerSignupRequest, error) {
-	res, err := ec.unmarshalInputCustomerSignupRequest(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNCustomerSignupResponse2githubᚗcomᚋkytruong0712ᚋgoffeeᚑshopᚋapiᚑgatewayᚋinternalᚋhandlerᚋgqlᚋmodᚐCustomerSignupResponse(ctx context.Context, sel ast.SelectionSet, v mod.CustomerSignupResponse) graphql.Marshaler {
-	return ec._CustomerSignupResponse(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNCustomerSignupResponse2ᚖgithubᚗcomᚋkytruong0712ᚋgoffeeᚑshopᚋapiᚑgatewayᚋinternalᚋhandlerᚋgqlᚋmodᚐCustomerSignupResponse(ctx context.Context, sel ast.SelectionSet, v *mod.CustomerSignupResponse) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._CustomerSignupResponse(ctx, sel, v)
-}
-
 func (ec *executionContext) unmarshalNInt642int64(ctx context.Context, v interface{}) (int64, error) {
 	res, err := scalar.UnmarshalInt64(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -2877,6 +2843,25 @@ func (ec *executionContext) marshalNInt642int64(ctx context.Context, sel ast.Sel
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNSignupRequest2githubᚗcomᚋkytruong0712ᚋgoffeeᚑshopᚋapiᚑgatewayᚋinternalᚋhandlerᚋgqlᚋmodᚐSignupRequest(ctx context.Context, v interface{}) (mod.SignupRequest, error) {
+	res, err := ec.unmarshalInputSignupRequest(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNSignupResponse2githubᚗcomᚋkytruong0712ᚋgoffeeᚑshopᚋapiᚑgatewayᚋinternalᚋhandlerᚋgqlᚋmodᚐSignupResponse(ctx context.Context, sel ast.SelectionSet, v mod.SignupResponse) graphql.Marshaler {
+	return ec._SignupResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNSignupResponse2ᚖgithubᚗcomᚋkytruong0712ᚋgoffeeᚑshopᚋapiᚑgatewayᚋinternalᚋhandlerᚋgqlᚋmodᚐSignupResponse(ctx context.Context, sel ast.SelectionSet, v *mod.SignupResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._SignupResponse(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
@@ -3186,22 +3171,6 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 		return graphql.Null
 	}
 	res := graphql.MarshalString(*v)
-	return res
-}
-
-func (ec *executionContext) unmarshalOTime2ᚖtimeᚐTime(ctx context.Context, v interface{}) (*time.Time, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := scalar.UnmarshalTime(v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOTime2ᚖtimeᚐTime(ctx context.Context, sel ast.SelectionSet, v *time.Time) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	res := scalar.MarshalTime(*v)
 	return res
 }
 

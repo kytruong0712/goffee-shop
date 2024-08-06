@@ -1,3 +1,3 @@
-type CustomerSignupResponse {
+type SignupResponse {
     iamID: Int64!
 }

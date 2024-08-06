@@ -2,7 +2,7 @@
 # Env Variables
 # ----------------------------
 CONTAINER_NAME ?= "goffee-shop"
-API_CONTAINER ?= server
+API_CONTAINER ?= api-gateway
 DOCKER_COMPOSE_FILE ?= docker-compose.local.yaml
 
 ## run: starts containers to run api server
@@ -19,6 +19,11 @@ api-go-generate:
 	@echo Starting generate gqlgenerated file...
 	sh -c 'go generate ./...'
 	@echo Done!
+
+protoc:
+	cd internal/gateway/grpcclient/proto && protoc --go_out=../protogen --go_opt=paths=source_relative \
+	--go-grpc_out=../protogen --go-grpc_opt=paths=source_relative \
+	./**/*.proto
 
 ## down: removes all docker containers
 down:

@@ -14,7 +14,11 @@ struct_tag: json
 
 models:
   Int64:
-    model: github.com/kytruong0712/goffee-shop/api-gateway/internal/appconfig/httpserver/gql/scalar.Int64
+    model: github.com/kytruong0712/goffee-shop/api-gateway/internal/infra/protocols/gql/scalar.Int64
   Time:
-    model: github.com/kytruong0712/goffee-shop/api-gateway/internal/appconfig/httpserver/gql/scalar.Time
+    model: github.com/kytruong0712/goffee-shop/api-gateway/internal/infra/protocols/gql/scalar.Time
+  SignupRequest:
+    model: github.com/kytruong0712/goffee-shop/api-gateway/internal/handler/gql/mod.SignupRequest
+  SignupResponse:
+    model: github.com/kytruong0712/goffee-shop/api-gateway/internal/handler/gql/mod.SignupResponse
 
