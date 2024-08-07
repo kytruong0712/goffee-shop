@@ -11,7 +11,9 @@ import (
 // Repository provides the specification of the functionality provided by this pkg
 type Repository interface {
 	// InsertUser supports insert user data to db
-	InsertUser(ctx context.Context, user model.User) (model.User, error)
+	InsertUser(context.Context, model.User) (model.User, error)
+	// CheckUserExistsByPhoneNumber checks user exists by phone number
+	CheckUserExistsByPhoneNumber(context.Context, string) (bool, error)
 }
 
 // New returns an implementation instance satisfying Repository

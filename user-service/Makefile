@@ -46,18 +46,20 @@ pg-migrate:
 	docker-compose -f ${DOCKER_COMPOSE_FILE} -p=${CONTAINER_NAME} --profile tools run --rm migrate up
 	@echo Migration done!
 
+# pg-drop: drop the db tables then run the migration
 pg-redo: pg-drop pg-migrate
-
-protoc:
-	cd internal/handler/grpcserver/proto && protoc --go_out=../protogen --go_opt=paths=source_relative \
-	--go-grpc_out=../protogen --go-grpc_opt=paths=source_relative \
-	./**/*.proto
 
 ## pg-drop: reset db to blank
 pg-drop:
 	@echo Dropping database...
 	docker-compose -f ${DOCKER_COMPOSE_FILE} -p=${CONTAINER_NAME} --profile tools run --rm migrate drop
 	@echo Done!
+
+## protoc: executes protobuf compiler command to generate Go-specific code
+protoc:
+	cd internal/handler/grpcserver/proto && protoc --go_out=../protogen --go_opt=paths=source_relative \
+	--go-grpc_out=../protogen --go-grpc_opt=paths=source_relative \
+	./**/*.proto
 
 ## down: removes all docker containers
 down:

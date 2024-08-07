@@ -2,9 +2,11 @@ package user
 
 import (
 	"context"
+
 	"github.com/kytruong0712/goffee-shop/user-service/internal/model"
 	"github.com/kytruong0712/goffee-shop/user-service/internal/repository/dbmodel"
 	"github.com/kytruong0712/goffee-shop/user-service/internal/repository/generator"
+
 	pkgerrors "github.com/pkg/errors"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )

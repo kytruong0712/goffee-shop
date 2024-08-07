@@ -2,16 +2,32 @@ syntax = "proto3";
 
 option go_package = "github.com/kytruong0712/goffee-shop/user-service/internal/grpcserver/protogen/users";
 
+import "google/timestamp.proto";
+
 service UserService {
-  rpc Register(RegisterRequest) returns (RegisterResponse);
+  rpc SignupAccount(SignupAccountRequest) returns (SignupAccountResponse);
 }
 
-message RegisterRequest {
+enum UserStatus {
+  ACTIVE = 0;
+  INACTIVE = 1;
+}
+
+message SignupAccountRequest {
   string fullName = 1 [json_name = "full_name"];
   string phoneNumber = 2 [json_name = "phone_number"];
   string password = 3 [json_name = "password"];
 }
 
-message RegisterResponse {
+message SignupAccountResponse {
+  User data = 1 [json_name = "data"];
+}
+
+message User {
   int64 iamId = 1 [json_name = "iam_id"];
+  string fullName = 2 [json_name = "full_name"];
+  string phoneNumber = 3 [json_name = "phone_number"];
+  UserStatus status = 4 [json_name = "status"];
+  google.protobuf.Timestamp created_at = 5 [json_name = "created_at"];
+  google.protobuf.Timestamp updated_at = 6 [json_name = "updated_at"];
 }

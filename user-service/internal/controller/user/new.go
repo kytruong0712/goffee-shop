@@ -8,8 +8,8 @@ import (
 
 // Controller represents the specification of this pkg
 type Controller interface {
-	// Create supports create new user account
-	Create(ctx context.Context, input CreateUserInput) (user model.User, err error)
+	// SignupAccount supports create new user account
+	SignupAccount(ctx context.Context, input SignupAccountInput) (user model.User, err error)
 }
 
 // New initializes a new Controller instance and returns it
