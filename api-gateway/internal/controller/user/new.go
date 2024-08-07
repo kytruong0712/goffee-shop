@@ -10,6 +10,8 @@ import (
 type Controller interface {
 	// Signup creates new user account
 	Signup(context.Context, SignupInput) (model.UserAccount, error)
+	// Activate activates inactive account
+	Activate(context.Context, int64) error
 }
 
 type impl struct {

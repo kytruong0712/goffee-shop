@@ -32,6 +32,17 @@ func (r *mutationResolver) Signup(ctx context.Context, req mod.SignupRequest) (*
 	}, nil
 }
 
+// Activate is graphql endpoint to support create activate created user account
+func (r *mutationResolver) Activate(ctx context.Context, iamID int64) (bool, error) {
+	if iamID <= 0 {
+		return false, webErrIamIDIsRequired
+	}
+
+	err := r.usrCtrl.Activate(ctx, iamID)
+
+	return err == nil, convertToClientErr(err)
+}
+
 func validateAndMap(req mod.SignupRequest) (user.SignupInput, error) {
 	if strings.TrimSpace(req.FullName) == "" {
 		return user.SignupInput{}, webErrFullNameIsRequired

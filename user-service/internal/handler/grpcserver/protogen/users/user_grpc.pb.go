@@ -8,6 +8,7 @@ package users
 
 import (
 	context "context"
+	common "github.com/kytruong0712/goffee-shop/user-service/internal/handler/grpcserver/protogen/common"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -19,7 +20,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	UserService_SignupAccount_FullMethodName = "/UserService/SignupAccount"
+	UserService_SignupAccount_FullMethodName   = "/UserService/SignupAccount"
+	UserService_ActivateAccount_FullMethodName = "/UserService/ActivateAccount"
 )
 
 // UserServiceClient is the client API for UserService service.
@@ -27,6 +29,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserServiceClient interface {
 	SignupAccount(ctx context.Context, in *SignupAccountRequest, opts ...grpc.CallOption) (*SignupAccountResponse, error)
+	ActivateAccount(ctx context.Context, in *ActivateAccountRequest, opts ...grpc.CallOption) (*common.Empty, error)
 }
 
 type userServiceClient struct {
@@ -47,11 +50,22 @@ func (c *userServiceClient) SignupAccount(ctx context.Context, in *SignupAccount
 	return out, nil
 }
 
+func (c *userServiceClient) ActivateAccount(ctx context.Context, in *ActivateAccountRequest, opts ...grpc.CallOption) (*common.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(common.Empty)
+	err := c.cc.Invoke(ctx, UserService_ActivateAccount_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility.
 type UserServiceServer interface {
 	SignupAccount(context.Context, *SignupAccountRequest) (*SignupAccountResponse, error)
+	ActivateAccount(context.Context, *ActivateAccountRequest) (*common.Empty, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -64,6 +78,9 @@ type UnimplementedUserServiceServer struct{}
 
 func (UnimplementedUserServiceServer) SignupAccount(context.Context, *SignupAccountRequest) (*SignupAccountResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SignupAccount not implemented")
+}
+func (UnimplementedUserServiceServer) ActivateAccount(context.Context, *ActivateAccountRequest) (*common.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ActivateAccount not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 func (UnimplementedUserServiceServer) testEmbeddedByValue()                     {}
@@ -104,6 +121,24 @@ func _UserService_SignupAccount_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_ActivateAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ActivateAccountRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).ActivateAccount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_ActivateAccount_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).ActivateAccount(ctx, req.(*ActivateAccountRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -114,6 +149,10 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SignupAccount",
 			Handler:    _UserService_SignupAccount_Handler,
+		},
+		{
+			MethodName: "ActivateAccount",
+			Handler:    _UserService_ActivateAccount_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

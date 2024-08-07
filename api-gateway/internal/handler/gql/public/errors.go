@@ -13,7 +13,10 @@ var (
 	webErrInvalidPhoneNumber    = &httpserver.Error{Status: http.StatusBadRequest, Code: "invalid_number", Desc: "Invalid phone number"}
 	webErrPasswordIsRequired    = &httpserver.Error{Status: http.StatusBadRequest, Code: "password_is_required", Desc: "Password is required"}
 	webErrInvalidPassword       = &httpserver.Error{Status: http.StatusBadRequest, Code: "invalid_password", Desc: "Invalid password. Rules: The password should between 8 and 12 characters, contains at least one uppercase letter, one lowercase letter, one number and one special character"}
+	webErrIamIDIsRequired       = &httpserver.Error{Status: http.StatusBadRequest, Code: "iamid_is_required", Desc: "IamID is required"}
 	webErrPhoneNumberExists     = &httpserver.Error{Status: http.StatusBadRequest, Code: "phone_number_already_exists", Desc: "Phone number already exists"}
+	webErrUserNotFound          = &httpserver.Error{Status: http.StatusBadRequest, Code: "user_not_found", Desc: "User not found"}
+	webErrUserAlreadyActivated  = &httpserver.Error{Status: http.StatusBadRequest, Code: "user_already_activated", Desc: "User already activated"}
 )
 
 func convertToClientErr(err error) error {
@@ -24,6 +27,10 @@ func convertToClientErr(err error) error {
 	switch err.Error() {
 	case user.ErrPhoneNumberExists.Error():
 		return webErrPhoneNumberExists
+	case user.ErrUserNotFound.Error():
+		return webErrUserNotFound
+	case user.ErrUserAlreadyActivated.Error():
+		return webErrUserAlreadyActivated
 	default:
 		return &httpserver.Error{Status: http.StatusInternalServerError, Code: "internal_error", Desc: err.Error()}
 	}

@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/kytruong0712/goffee-shop/user-service/internal/controller/user"
-	grpcError "github.com/kytruong0712/goffee-shop/user-service/internal/handler/grpcserver/protogen/errors"
+	"github.com/kytruong0712/goffee-shop/user-service/internal/handler/grpcserver/protogen/common"
 	"github.com/kytruong0712/goffee-shop/user-service/internal/handler/grpcserver/protogen/users"
 	"github.com/kytruong0712/goffee-shop/user-service/internal/model"
 	"github.com/kytruong0712/goffee-shop/user-service/internal/pkg/convertutil"
@@ -34,7 +34,7 @@ func (us impl) SignupAccount(ctx context.Context, req *users.SignupAccountReques
 			sttCode = uint32(codes.Internal)
 		}
 
-		grpcErr := grpcError.GRPCError{Desc: err.Error(), Code: sttCode}
+		grpcErr := common.GRPCError{Desc: err.Error(), Code: sttCode}
 
 		return nil, status.Error(codes.Code(grpcErr.Code), convertutil.ConvertStructToString(grpcErr))
 	}
@@ -63,11 +63,11 @@ func validateAndMap(req *users.SignupAccountRequest) (user.SignupAccountInput, e
 }
 
 func toCreateUserResponse(rs model.User) *users.SignupAccountResponse {
-	var stt users.UserStatus
+	var stt common.UserStatus
 	if rs.Status == model.UserStatusActive {
-		stt = users.UserStatus_ACTIVE
+		stt = common.UserStatus_ACTIVE
 	} else if rs.Status == model.UserStatusInactive {
-		stt = users.UserStatus_INACTIVE
+		stt = common.UserStatus_INACTIVE
 	}
 
 	return &users.SignupAccountResponse{

@@ -2,14 +2,17 @@ package main
 
 import (
 	"context"
-	"github.com/kytruong0712/goffee-shop/api-gateway/internal/controller/user"
-	"github.com/kytruong0712/goffee-shop/api-gateway/internal/gateway/grpcclient"
-	"google.golang.org/grpc"
 	"log"
+	"time"
 
 	"github.com/kytruong0712/goffee-shop/api-gateway/cmd/banner"
+	"github.com/kytruong0712/goffee-shop/api-gateway/internal/controller/user"
+	"github.com/kytruong0712/goffee-shop/api-gateway/internal/gateway/grpcclient"
 	"github.com/kytruong0712/goffee-shop/api-gateway/internal/infra/config"
 	"github.com/kytruong0712/goffee-shop/api-gateway/internal/infra/httpserver"
+
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/backoff"
 )
 
 func main() {
@@ -47,7 +50,16 @@ func initConfig() (config.Config, error) {
 }
 
 func initGRPCClient(cfg config.Config) (grpcclient.ServiceClient, error) {
-	conn, err := grpc.NewClient(cfg.ServerCfg.UserServiceAddr, grpc.WithInsecure())
+	conn, err := grpc.NewClient(
+		cfg.ServerCfg.UserServiceAddr,
+		grpc.WithInsecure(),
+		grpc.WithConnectParams(grpc.ConnectParams{
+			Backoff: backoff.Config{
+				BaseDelay:  time.Second,
+				Multiplier: 1.5,
+				MaxDelay:   5 * time.Second,
+			},
+		}))
 	if err != nil {
 		return nil, err
 	}

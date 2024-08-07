@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "github.com/kytruong0712/goffee-shop/api-gateway/internal/gateway/grpcclient/protogen/errors";
+option go_package = "github.com/kytruong0712/goffee-shop/api-gateway/internal/gateway/grpcclient/protogen/common";
 
 message GRPCError {
   uint32 code = 1 [json_name = "code"];

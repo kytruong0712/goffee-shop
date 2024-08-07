@@ -10,6 +10,8 @@ import (
 type Controller interface {
 	// SignupAccount supports create new user account
 	SignupAccount(ctx context.Context, input SignupAccountInput) (user model.User, err error)
+	// ActivateAccount activate an inactive account
+	ActivateAccount(ctx context.Context, iamID int64) error
 }
 
 // New initializes a new Controller instance and returns it

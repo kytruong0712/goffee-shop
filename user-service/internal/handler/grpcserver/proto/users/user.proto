@@ -1,17 +1,16 @@
 syntax = "proto3";
 
-option go_package = "github.com/kytruong0712/goffee-shop/user-service/internal/grpcserver/protogen/users";
+option go_package = "github.com/kytruong0712/goffee-shop/user-service/internal/handler/grpcserver/protogen/users";
 
 import "google/timestamp.proto";
+import "common/enum.proto";
+import "common/empty.proto";
 
 service UserService {
   rpc SignupAccount(SignupAccountRequest) returns (SignupAccountResponse);
+  rpc ActivateAccount(ActivateAccountRequest) returns (Empty);
 }
 
-enum UserStatus {
-  ACTIVE = 0;
-  INACTIVE = 1;
-}
 
 message SignupAccountRequest {
   string fullName = 1 [json_name = "full_name"];
@@ -31,3 +30,8 @@ message User {
   google.protobuf.Timestamp created_at = 5 [json_name = "created_at"];
   google.protobuf.Timestamp updated_at = 6 [json_name = "updated_at"];
 }
+
+message ActivateAccountRequest {
+  int64 iamId = 1 [json_name = "iam_id"];
+}
+

@@ -12,10 +12,9 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// SignupAccount support to forward the signup request to gRPC client
-func (i impl) SignupAccount(ctx context.Context, req *users.SignupAccountRequest, opts ...grpc.CallOption) (*users.SignupAccountResponse, error) {
-	resp, err := i.userClient.SignupAccount(ctx, req)
-	if err != nil {
+// ActivateAccount support to forward the activate account request to gRPC client
+func (i impl) ActivateAccount(ctx context.Context, req *users.ActivateAccountRequest, opts ...grpc.CallOption) (*common.Empty, error) {
+	if _, err := i.userClient.ActivateAccount(ctx, req); err != nil {
 		if s, ok := status.FromError(err); ok {
 			var grpcErr common.GRPCError
 			if jErr := json.Unmarshal([]byte(s.Message()), &grpcErr); jErr != nil {
@@ -23,13 +22,13 @@ func (i impl) SignupAccount(ctx context.Context, req *users.SignupAccountRequest
 			}
 
 			switch grpcErr.Desc {
-			case ErrPhoneNumberExists.Error():
-				return nil, ErrPhoneNumberExists
+			case ErrUserNotFound.Error():
+				return nil, ErrUserNotFound
+			case ErrUserAlreadyActivated.Error():
+				return nil, ErrUserAlreadyActivated
 			}
 		}
-
-		return nil, pkgerrors.WithStack(err)
 	}
 
-	return resp, nil
+	return nil, nil
 }
