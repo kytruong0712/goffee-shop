@@ -9,6 +9,7 @@ import "common/empty.proto";
 service UserService {
   rpc SignupAccount(SignupAccountRequest) returns (SignupAccountResponse);
   rpc ActivateAccount(ActivateAccountRequest) returns (Empty);
+  rpc Login(LoginRequest) returns (LoginResponse);
 }
 
 
@@ -35,3 +36,12 @@ message ActivateAccountRequest {
   int64 iamId = 1 [json_name = "iam_id"];
 }
 
+message LoginRequest {
+  string phoneNumber = 1 [json_name = "phone_number"];
+  string password = 2 [json_name = "password"];
+}
+
+message LoginResponse {
+  int64 iamId = 1 [json_name = "iam_id"];
+  string token = 2 [json_name = "token"];
+}

@@ -35,12 +35,27 @@ func (i impl) GetUserByIamID(ctx context.Context, iamID int64) (model.User, erro
 	return toUserModel(*u), nil
 }
 
+// GetUserByPhoneNumber get user by phone number
+func (i impl) GetUserByPhoneNumber(ctx context.Context, phoneNumber string) (model.User, error) {
+	u, err := dbmodel.Users(dbmodel.UserWhere.PhoneNumber.EQ(phoneNumber)).One(ctx, i.dbConn)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return model.User{}, pkgerrors.WithStack(ErrNoRows)
+		}
+
+		return model.User{}, pkgerrors.WithStack(err)
+	}
+
+	return toUserModel(*u), nil
+}
+
 func toUserModel(u dbmodel.User) model.User {
 	return model.User{
 		ID:          u.ID,
 		IamID:       u.IamID,
 		FullName:    u.FullName,
 		PhoneNumber: u.PhoneNumber,
+		Password:    u.PasswordHashed,
 		Status:      model.UserStatus(u.Status),
 		CreatedAt:   u.CreatedAt,
 		UpdatedAt:   u.UpdatedAt,

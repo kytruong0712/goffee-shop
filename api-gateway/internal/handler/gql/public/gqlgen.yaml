@@ -21,4 +21,8 @@ models:
     model: github.com/kytruong0712/goffee-shop/api-gateway/internal/handler/gql/mod.SignupRequest
   SignupResponse:
     model: github.com/kytruong0712/goffee-shop/api-gateway/internal/handler/gql/mod.SignupResponse
+  LoginRequest:
+    model: github.com/kytruong0712/goffee-shop/api-gateway/internal/handler/gql/mod.LoginRequest
+  LoginResponse:
+    model: github.com/kytruong0712/goffee-shop/api-gateway/internal/handler/gql/mod.LoginResponse
 

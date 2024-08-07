@@ -20,6 +20,8 @@ type Repository interface {
 	CheckUserExistsByPhoneNumber(context.Context, string) (bool, error)
 	// GetUserByIamID get user by IamID
 	GetUserByIamID(context.Context, int64) (model.User, error)
+	// GetUserByPhoneNumber get user by phone number
+	GetUserByPhoneNumber(context.Context, string) (model.User, error)
 }
 
 // New returns an implementation instance satisfying Repository

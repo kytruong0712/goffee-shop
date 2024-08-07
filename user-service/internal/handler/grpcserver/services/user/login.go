@@ -13,14 +13,18 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// ActivateAccount is gRPC function to support activate inactive account
-func (i impl) ActivateAccount(ctx context.Context, req *users.ActivateAccountRequest) (*common.Empty, error) {
-	if err := i.userCtrl.ActivateAccount(ctx, req.IamId); err != nil {
+// Login is gRPC function to support authenticate inactive account
+func (i impl) Login(ctx context.Context, req *users.LoginRequest) (*users.LoginResponse, error) {
+	rs, err := i.userCtrl.DoLogin(ctx, user.LoginInput{
+		PhoneNumber: req.PhoneNumber,
+		Password:    req.Password,
+	})
+	if err != nil {
 		var sttCode uint32
-		if errors.Is(err, user.ErrUserNotFound) {
+		if errors.Is(err, user.ErrLoginIDOrPasswordIsIncorrect) {
 			sttCode = uint32(codes.NotFound)
-		} else if errors.Is(err, user.ErrUserAlreadyActivated) {
-			sttCode = uint32(codes.AlreadyExists)
+		} else {
+			sttCode = uint32(codes.Internal)
 		}
 
 		grpcErr := common.GRPCError{Desc: err.Error(), Code: sttCode}
@@ -28,5 +32,8 @@ func (i impl) ActivateAccount(ctx context.Context, req *users.ActivateAccountReq
 		return nil, status.Error(codes.Code(grpcErr.Code), convertutil.ConvertStructToString(grpcErr))
 	}
 
-	return nil, nil
+	return &users.LoginResponse{
+		IamId: rs.IamID,
+		Token: rs.Token,
+	}, nil
 }

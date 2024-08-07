@@ -19,13 +19,13 @@ import (
 )
 
 // SignupAccount is gRPC function to support create new user account
-func (us impl) SignupAccount(ctx context.Context, req *users.SignupAccountRequest) (*users.SignupAccountResponse, error) {
+func (i impl) SignupAccount(ctx context.Context, req *users.SignupAccountRequest) (*users.SignupAccountResponse, error) {
 	inp, err := validateAndMap(req)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	rs, err := us.userCtrl.SignupAccount(ctx, inp)
+	rs, err := i.userCtrl.SignupAccount(ctx, inp)
 	if err != nil {
 		var sttCode uint32
 		if errors.Is(err, user.ErrPhoneNumberExists) {

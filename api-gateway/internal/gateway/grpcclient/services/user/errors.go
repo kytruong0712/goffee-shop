@@ -9,4 +9,6 @@ var (
 	ErrUserNotFound = errors.New("user not found")
 	// ErrUserAlreadyActivated means user already activated
 	ErrUserAlreadyActivated = errors.New("user already activated")
+	// ErrLoginIDOrPasswordIsIncorrect means login id or password is incorrect
+	ErrLoginIDOrPasswordIsIncorrect = errors.New("account name or password is incorrect")
 )

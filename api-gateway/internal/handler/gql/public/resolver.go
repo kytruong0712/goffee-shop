@@ -26,6 +26,10 @@ func (r *resolver) Mutation() MutationResolver {
 	return &mutationResolver{r}
 }
 
+func (r *resolver) Query() QueryResolver {
+	return &queryResolver{r}
+}
+
 type queryResolver struct {
 	*resolver
 }

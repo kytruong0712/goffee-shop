@@ -62,7 +62,7 @@ func startingGRPCServer(cfg config.Config, conn *sql.DB) {
 	serv := initGRPCServer()
 
 	repo := repository.New(conn)
-	userCtrl := user.New(repo)
+	userCtrl := user.New(cfg.IamConfig, repo)
 
 	serviceServer := grpcSvc.New(userCtrl)
 	users.RegisterUserServiceServer(serv, serviceServer.UserServiceServer())

@@ -12,6 +12,8 @@ type Controller interface {
 	Signup(context.Context, SignupInput) (model.UserAccount, error)
 	// Activate activates inactive account
 	Activate(context.Context, int64) error
+	// Login authenticates user credential
+	Login(context.Context, LoginInput) (model.LoginResponse, error)
 }
 
 type impl struct {

@@ -15,7 +15,7 @@ import (
 
 // Signup is graphql endpoint to support create new user account
 func (r *mutationResolver) Signup(ctx context.Context, req mod.SignupRequest) (*mod.SignupResponse, error) {
-	inp, err := validateAndMap(req)
+	inp, err := toSignupInput(req)
 	if err != nil {
 		return nil, err
 	}
@@ -32,18 +32,7 @@ func (r *mutationResolver) Signup(ctx context.Context, req mod.SignupRequest) (*
 	}, nil
 }
 
-// Activate is graphql endpoint to support create activate created user account
-func (r *mutationResolver) Activate(ctx context.Context, iamID int64) (bool, error) {
-	if iamID <= 0 {
-		return false, webErrIamIDIsRequired
-	}
-
-	err := r.usrCtrl.Activate(ctx, iamID)
-
-	return err == nil, convertToClientErr(err)
-}
-
-func validateAndMap(req mod.SignupRequest) (user.SignupInput, error) {
+func toSignupInput(req mod.SignupRequest) (user.SignupInput, error) {
 	if strings.TrimSpace(req.FullName) == "" {
 		return user.SignupInput{}, webErrFullNameIsRequired
 	}
@@ -66,6 +55,50 @@ func validateAndMap(req mod.SignupRequest) (user.SignupInput, error) {
 
 	return user.SignupInput{
 		FullName:    req.FullName,
+		PhoneNumber: req.PhoneNumber,
+		Password:    req.Password,
+	}, nil
+}
+
+// Activate is graphql endpoint to support create activate created user account
+func (r *mutationResolver) Activate(ctx context.Context, iamID int64) (bool, error) {
+	if iamID <= 0 {
+		return false, webErrIamIDIsRequired
+	}
+
+	err := r.usrCtrl.Activate(ctx, iamID)
+
+	return err == nil, convertToClientErr(err)
+}
+
+// Login is graphql endpoint to authenticate user
+func (r *queryResolver) Login(ctx context.Context, req mod.LoginRequest) (*mod.LoginResponse, error) {
+	inp, err := toLoginInput(req)
+	if err != nil {
+		return nil, err
+	}
+
+	rs, err := r.usrCtrl.Login(ctx, inp)
+	if err != nil {
+		return nil, convertToClientErr(err)
+	}
+
+	return &mod.LoginResponse{
+		IamID: rs.IamID,
+		Token: rs.Token,
+	}, nil
+}
+
+func toLoginInput(req mod.LoginRequest) (user.LoginInput, error) {
+	if strings.TrimSpace(req.PhoneNumber) == "" {
+		return user.LoginInput{}, webErrPhoneNumberIsRequired
+	}
+
+	if strings.TrimSpace(req.Password) == "" {
+		return user.LoginInput{}, webErrPasswordIsRequired
+	}
+
+	return user.LoginInput{
 		PhoneNumber: req.PhoneNumber,
 		Password:    req.Password,
 	}, nil
