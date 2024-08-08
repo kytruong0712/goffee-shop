@@ -4,9 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-
+	"fmt"
 	"github.com/kytruong0712/goffee-shop/user-service/internal/model"
 	"github.com/kytruong0712/goffee-shop/user-service/internal/repository/dbmodel"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 
 	pkgerrors "github.com/pkg/errors"
 )
@@ -57,6 +58,77 @@ func toUserModel(u dbmodel.User) model.User {
 		PhoneNumber: u.PhoneNumber,
 		Password:    u.PasswordHashed,
 		Status:      model.UserStatus(u.Status),
+		CreatedAt:   u.CreatedAt,
+		UpdatedAt:   u.UpdatedAt,
+	}
+}
+
+// GetUserProfileByIamID get user profile by IamID
+func (i impl) GetUserProfileByIamID(ctx context.Context, iamID int64) (model.UserProfile, error) {
+	user, err := dbmodel.Users(qm.Load(
+		dbmodel.UserRels.UserProfiles),
+		qm.Where(fmt.Sprintf("%v =", dbmodel.UserColumns.IamID), iamID)).One(ctx, i.dbConn)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return model.UserProfile{}, pkgerrors.WithStack(ErrNoRows)
+		}
+
+		return model.UserProfile{}, pkgerrors.WithStack(err)
+	}
+
+	if user.R == nil || user.R.UserProfiles == nil || len(user.R.UserProfiles) <= 0 {
+		return model.UserProfile{}, pkgerrors.WithStack(ErrNoRows)
+	}
+
+	return toUserProfileModel(*user.R.UserProfiles[0]), nil
+}
+
+// GetUserProfileByID get user profile by ID
+func (i impl) GetUserProfileByID(ctx context.Context, id int64) (model.UserProfile, error) {
+	userProfile, err := dbmodel.FindUserProfile(ctx, i.dbConn, id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return model.UserProfile{}, pkgerrors.WithStack(ErrNoRows)
+		}
+
+		return model.UserProfile{}, pkgerrors.WithStack(err)
+	}
+
+	return toUserProfileModel(*userProfile), nil
+}
+
+// GetUserWithProfileByIamID get user and profile by Iam ID
+func (i impl) GetUserWithProfileByIamID(ctx context.Context, iamID int64) (model.UserWithProfile, error) {
+	user, err := dbmodel.Users(qm.Load(
+		dbmodel.UserRels.UserProfiles),
+		qm.Where(fmt.Sprintf("%v=?", dbmodel.UserColumns.IamID), iamID)).One(ctx, i.dbConn)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return model.UserWithProfile{}, pkgerrors.WithStack(ErrNoRows)
+		}
+
+		return model.UserWithProfile{}, pkgerrors.WithStack(err)
+	}
+
+	userWithProfileModel := model.UserWithProfile{
+		User: toUserModel(*user),
+	}
+
+	if user.R != nil && user.R.UserProfiles != nil || len(user.R.UserProfiles) > 0 {
+		profile := toUserProfileModel(*user.R.UserProfiles[0])
+		userWithProfileModel.Profile = &profile
+	}
+
+	return userWithProfileModel, nil
+}
+
+func toUserProfileModel(u dbmodel.UserProfile) model.UserProfile {
+	return model.UserProfile{
+		ID:          u.ID,
+		UserID:      u.UserID,
+		Email:       u.Email,
+		Gender:      u.Gender,
+		DateOfBirth: u.DateOfBirth,
 		CreatedAt:   u.CreatedAt,
 		UpdatedAt:   u.UpdatedAt,
 	}

@@ -32,5 +32,5 @@ type User struct {
 // UserWithProfile represents user with profile
 type UserWithProfile struct {
 	User
-	UserProfile
+	Profile *UserProfile
 }

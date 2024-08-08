@@ -15,6 +15,8 @@ type Controller interface {
 	ActivateAccount(context.Context, int64) error
 	// DoLogin authenticates user
 	DoLogin(context.Context, LoginInput) (model.LoginResponse, error)
+	// UpsertUserProfile handles insert / update user profile
+	UpsertUserProfile(context.Context, UpdateProfileInput) (model.UserProfile, error)
 }
 
 // New initializes a new Controller instance and returns it

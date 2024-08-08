@@ -72,3 +72,54 @@ func (i impl) UpdateUser(ctx context.Context, params UpdateUserParams) error {
 
 	return nil
 }
+
+// UpdateUserProfileParams represents params to update user profile
+type UpdateUserProfileParams struct {
+	UserProfile    model.UserProfile
+	FieldsToUpdate []UserProfileFieldToUpdate
+}
+
+// UserProfileFieldToUpdate represents columns of user profile table which applicable to update
+type UserProfileFieldToUpdate string
+
+var (
+	UserProfileFieldEmail       = UserProfileFieldToUpdate(dbmodel.UserProfileColumns.Email)
+	UserProfileFieldDateOfBirth = UserProfileFieldToUpdate(dbmodel.UserProfileColumns.DateOfBirth)
+	UserProfileFieldGender      = UserProfileFieldToUpdate(dbmodel.UserProfileColumns.Gender)
+)
+
+// UpdateUserProfile supports update user profile data
+func (i impl) UpdateUserProfile(ctx context.Context, params UpdateUserProfileParams) error {
+	whiteListColumns := boil.Whitelist(dbmodel.UserProfileColumns.UpdatedAt)
+	if len(params.FieldsToUpdate) > 0 {
+		for _, f := range params.FieldsToUpdate {
+			whiteListColumns.Cols = append(whiteListColumns.Cols, string(f))
+		}
+	} else {
+		return pkgerrors.WithStack(ErrEmptyFieldsToUpdate)
+	}
+
+	updateUserProfile, err := dbmodel.UserProfiles(dbmodel.UserProfileWhere.ID.EQ(params.UserProfile.ID), qm.For("UPDATE")).One(ctx, i.dbConn)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return pkgerrors.WithStack(ErrNoRows)
+		}
+
+		return pkgerrors.WithStack(err)
+	}
+
+	updateUserProfile.Email = params.UserProfile.Email
+	updateUserProfile.Gender = params.UserProfile.Gender
+	updateUserProfile.DateOfBirth = params.UserProfile.DateOfBirth
+
+	rowsAffected, err := updateUserProfile.Update(ctx, i.dbConn, whiteListColumns)
+	if err != nil {
+		return pkgerrors.WithStack(err)
+	}
+
+	if rowsAffected != 1 {
+		return pkgerrors.WithStack(fmt.Errorf("%w, found: %d", ErrUnexpectedRowsFound, rowsAffected))
+	}
+
+	return nil
+}
