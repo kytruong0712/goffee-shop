@@ -20,7 +20,7 @@ services:
     image: migrate/migrate:v4.15.2
     profiles: [ "tools" ]
     volumes:
-      - ./data/migrations:/migrations
+      - ../data/migrations:/migrations
     entrypoint:
       [
         "migrate",
@@ -38,7 +38,7 @@ services:
     image: golang:latest
     working_dir: /user-service
     volumes:
-      - ./:/user-service
+      - ../:/user-service
     command: go run -mod=vendor cmd/serverd/main.go
     ports:
       - "50051:50051"

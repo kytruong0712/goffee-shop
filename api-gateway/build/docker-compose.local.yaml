@@ -4,7 +4,7 @@ services:
     image: golang:latest
     working_dir: /api-gateway
     volumes:
-      - ./:/api-gateway
+      - ../:/api-gateway
     command: go run -mod=vendor cmd/serverd/main.go cmd/serverd/router.go
     ports:
       - "3003:3003"
