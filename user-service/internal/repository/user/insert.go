@@ -7,6 +7,7 @@ import (
 	"github.com/kytruong0712/goffee-shop/user-service/internal/repository/generator"
 
 	pkgerrors "github.com/pkg/errors"
+	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
@@ -67,9 +68,9 @@ func (i impl) InsertUserProfile(ctx context.Context, input model.UserProfile) (m
 	userProfileDBModel := dbmodel.UserProfile{
 		ID:          id,
 		UserID:      input.UserID,
-		Email:       input.Email,
-		Gender:      input.Gender,
-		DateOfBirth: input.DateOfBirth,
+		Email:       null.StringFrom(input.Email),
+		Gender:      null.StringFrom(input.Gender.String()),
+		DateOfBirth: null.TimeFromPtr(input.DateOfBirth),
 	}
 
 	if err := userProfileDBModel.Insert(ctx, i.dbConn, boil.Infer()); err != nil {

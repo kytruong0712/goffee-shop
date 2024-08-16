@@ -1,8 +1,6 @@
 package model
 
-import (
-	"time"
-)
+import "time"
 
 // GenderType defines types of gender
 type GenderType string
@@ -17,15 +15,15 @@ func (gender GenderType) String() string {
 	return string(gender)
 }
 
-// IsValid checks if gender type is valid or not
-func (gender GenderType) IsValid() bool {
-	return gender.String() == GenderMale.String() || gender.String() == GenderFemale.String()
+// StringPtr converts gender type to pointer of string
+func (gender GenderType) StringPtr() *string {
+	g := gender.String()
+	return &g
 }
 
-// UserProfile struct represents the user profile to populate
+// UserProfile represents user profile info
 type UserProfile struct {
-	ID          int64
-	UserID      int64
+	IamID       int64
 	Email       string
 	Gender      GenderType
 	DateOfBirth *time.Time

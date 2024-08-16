@@ -14,6 +14,8 @@ type Controller interface {
 	Activate(context.Context, int64) error
 	// Login authenticates user credential
 	Login(context.Context, LoginInput) (model.LoginResponse, error)
+	// UpdateProfile updates user profile
+	UpdateProfile(context.Context, UpdateProfileInput) (model.UserProfile, error)
 }
 
 type impl struct {

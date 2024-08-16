@@ -33,7 +33,7 @@ type UserServiceClient interface {
 	SignupAccount(ctx context.Context, in *SignupAccountRequest, opts ...grpc.CallOption) (*SignupAccountResponse, error)
 	ActivateAccount(ctx context.Context, in *ActivateAccountRequest, opts ...grpc.CallOption) (*common.Empty, error)
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
-	UpdateUserProfile(ctx context.Context, in *UpdateUserProfileRequest, opts ...grpc.CallOption) (*UserProfileResponse, error)
+	UpdateUserProfile(ctx context.Context, in *UpdateUserProfileRequest, opts ...grpc.CallOption) (*UpdateUserProfileResponse, error)
 }
 
 type userServiceClient struct {
@@ -74,9 +74,9 @@ func (c *userServiceClient) Login(ctx context.Context, in *LoginRequest, opts ..
 	return out, nil
 }
 
-func (c *userServiceClient) UpdateUserProfile(ctx context.Context, in *UpdateUserProfileRequest, opts ...grpc.CallOption) (*UserProfileResponse, error) {
+func (c *userServiceClient) UpdateUserProfile(ctx context.Context, in *UpdateUserProfileRequest, opts ...grpc.CallOption) (*UpdateUserProfileResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UserProfileResponse)
+	out := new(UpdateUserProfileResponse)
 	err := c.cc.Invoke(ctx, UserService_UpdateUserProfile_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -91,7 +91,7 @@ type UserServiceServer interface {
 	SignupAccount(context.Context, *SignupAccountRequest) (*SignupAccountResponse, error)
 	ActivateAccount(context.Context, *ActivateAccountRequest) (*common.Empty, error)
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
-	UpdateUserProfile(context.Context, *UpdateUserProfileRequest) (*UserProfileResponse, error)
+	UpdateUserProfile(context.Context, *UpdateUserProfileRequest) (*UpdateUserProfileResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -111,7 +111,7 @@ func (UnimplementedUserServiceServer) ActivateAccount(context.Context, *Activate
 func (UnimplementedUserServiceServer) Login(context.Context, *LoginRequest) (*LoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
-func (UnimplementedUserServiceServer) UpdateUserProfile(context.Context, *UpdateUserProfileRequest) (*UserProfileResponse, error) {
+func (UnimplementedUserServiceServer) UpdateUserProfile(context.Context, *UpdateUserProfileRequest) (*UpdateUserProfileResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateUserProfile not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}

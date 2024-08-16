@@ -3,6 +3,8 @@ package user
 import (
 	"context"
 	"errors"
+	"fmt"
+	"log"
 	"time"
 
 	"github.com/kytruong0712/goffee-shop/user-service/internal/controller/user"
@@ -17,15 +19,11 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func (i impl) UpdateUserProfile(ctx context.Context, req *users.UpdateUserProfileRequest) (*users.UserProfileResponse, error) {
-	rs, err := i.userCtrl.UpsertUserProfile(ctx, user.UpdateProfileInput{
-		IamID:       req.IamId,
-		Email:       req.Email,
-		Gender:      req.Gender,
-		DateOfBirth: time.Date(int(req.DateOfBirth.Year), time.Month(req.DateOfBirth.Month), int(req.DateOfBirth.Day), 0, 0, 0, 0, nil),
-	})
-
+func (i impl) UpdateUserProfile(ctx context.Context, req *users.UpdateUserProfileRequest) (*users.UpdateUserProfileResponse, error) {
+	inp := toUpdateProfileInput(req)
+	rs, err := i.userCtrl.UpsertUserProfile(ctx, inp)
 	if err != nil {
+		log.Printf("[UpdateUserProfile] failed to update user profile. Request: %+v\nErr: %v\n", inp, err)
 		var sttCode uint32
 		if errors.Is(err, user.ErrUserNotFound) {
 			sttCode = uint32(codes.NotFound)
@@ -38,13 +36,35 @@ func (i impl) UpdateUserProfile(ctx context.Context, req *users.UpdateUserProfil
 		return nil, status.Error(codes.Code(grpcErr.Code), convertutil.ConvertStructToString(grpcErr))
 	}
 
-	return toUpdateUserProfileResponse(req.IamId, rs), status.Error(codes.Unimplemented, "not implemented")
+	log.Printf("[UpdateUserProfile] success to update user profile. Request: %+v\nResult: %v\n", inp, rs)
+
+	return toUpdateUserProfileResponse(req.IamId, rs), nil
 }
 
-func toUpdateUserProfileResponse(iamID int64, rs model.UserProfile) *users.UserProfileResponse {
+func toUpdateProfileInput(req *users.UpdateUserProfileRequest) user.UpdateProfileInput {
+	inp := user.UpdateProfileInput{
+		IamID: req.IamId,
+		Email: req.Email,
+	}
+
+	if req.Gender == common.GenderType_MALE {
+		inp.Gender = model.GenderType(common.GenderType_MALE.String())
+	} else if req.Gender == common.GenderType_FEMALE {
+		inp.Gender = model.GenderType(common.GenderType_FEMALE.String())
+	}
+
+	if req.DateOfBirth != nil {
+		dob := time.Date(int(req.DateOfBirth.Year), time.Month(req.DateOfBirth.Month), int(req.DateOfBirth.Day), 0, 0, 0, 0, time.UTC)
+		inp.DateOfBirth = &dob
+	}
+
+	return inp
+}
+
+func toUpdateUserProfileResponse(iamID int64, rs model.UserProfile) *users.UpdateUserProfileResponse {
 	var dob *date.Date
-	if !rs.DateOfBirth.IsZero() && rs.DateOfBirth.Valid {
-		dt := rs.DateOfBirth.Time
+	if rs.DateOfBirth != nil {
+		dt := rs.DateOfBirth
 		dob = &date.Date{
 			Year:  int32(dt.Year()),
 			Month: int32(dt.Month()),
@@ -52,14 +72,24 @@ func toUpdateUserProfileResponse(iamID int64, rs model.UserProfile) *users.UserP
 		}
 	}
 
-	return &users.UserProfileResponse{
+	var gd common.GenderType
+	if rs.Gender == model.GenderMale {
+		gd = common.GenderType_MALE
+	} else if rs.Gender == model.GenderFemale {
+		gd = common.GenderType_FEMALE
+	}
+
+	resp := &users.UpdateUserProfileResponse{
 		Data: &users.UserProfile{
 			IamId:       iamID,
-			Email:       rs.Email.String,
-			Gender:      rs.Gender.String,
+			Email:       rs.Email,
+			Gender:      gd,
 			DateOfBirth: dob,
 			CreatedAt:   timestamppb.New(rs.CreatedAt),
 			UpdatedAt:   timestamppb.New(rs.UpdatedAt),
 		},
 	}
+
+	fmt.Printf("toUpdateUserProfileResponse %+v\n", resp)
+	return resp
 }

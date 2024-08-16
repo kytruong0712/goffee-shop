@@ -1,0 +1,3 @@
+type Mutation {
+    updateUserProfile(req: UpdateUserProfileRequest!): UserProfile!
+}

@@ -6,3 +6,8 @@ enum UserStatus {
   ACTIVE = 0;
   INACTIVE = 1;
 }
+
+enum GenderType {
+  MALE = 0;
+  FEMALE = 1;
+}

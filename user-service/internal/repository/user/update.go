@@ -10,6 +10,7 @@ import (
 	"github.com/kytruong0712/goffee-shop/user-service/internal/repository/dbmodel"
 
 	pkgerrors "github.com/pkg/errors"
+	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
@@ -108,9 +109,9 @@ func (i impl) UpdateUserProfile(ctx context.Context, params UpdateUserProfilePar
 		return pkgerrors.WithStack(err)
 	}
 
-	updateUserProfile.Email = params.UserProfile.Email
-	updateUserProfile.Gender = params.UserProfile.Gender
-	updateUserProfile.DateOfBirth = params.UserProfile.DateOfBirth
+	updateUserProfile.Email = null.StringFrom(params.UserProfile.Email)
+	updateUserProfile.Gender = null.StringFrom(params.UserProfile.Gender.String())
+	updateUserProfile.DateOfBirth = null.TimeFromPtr(params.UserProfile.DateOfBirth)
 
 	rowsAffected, err := updateUserProfile.Update(ctx, i.dbConn, whiteListColumns)
 	if err != nil {

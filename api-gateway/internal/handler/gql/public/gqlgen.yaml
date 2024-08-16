@@ -25,4 +25,3 @@ models:
     model: github.com/kytruong0712/goffee-shop/api-gateway/internal/handler/gql/mod.LoginRequest
   LoginResponse:
     model: github.com/kytruong0712/goffee-shop/api-gateway/internal/handler/gql/mod.LoginResponse
-

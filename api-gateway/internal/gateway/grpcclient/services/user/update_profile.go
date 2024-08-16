@@ -3,6 +3,8 @@ package user
 import (
 	"context"
 	"encoding/json"
+	"log"
+
 	"github.com/kytruong0712/goffee-shop/api-gateway/internal/gateway/grpcclient/protogen/common"
 	"github.com/kytruong0712/goffee-shop/api-gateway/internal/gateway/grpcclient/protogen/users"
 
@@ -11,10 +13,11 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// SignupAccount support to forward the signup request to gRPC client
-func (i impl) SignupAccount(ctx context.Context, req *users.SignupAccountRequest, opts ...grpc.CallOption) (*users.SignupAccountResponse, error) {
-	resp, err := i.userClient.SignupAccount(ctx, req)
+// UpdateUserProfile support to forward the update user profile request to gRPC client
+func (i impl) UpdateUserProfile(ctx context.Context, req *users.UpdateUserProfileRequest, opts ...grpc.CallOption) (*users.UpdateUserProfileResponse, error) {
+	resp, err := i.userClient.UpdateUserProfile(ctx, req)
 	if err != nil {
+		log.Printf("gRPC err: %+v", err)
 		if s, ok := status.FromError(err); ok {
 			var grpcErr common.GRPCError
 			if jErr := json.Unmarshal([]byte(s.Message()), &grpcErr); jErr != nil {
@@ -22,8 +25,8 @@ func (i impl) SignupAccount(ctx context.Context, req *users.SignupAccountRequest
 			}
 
 			switch grpcErr.Desc {
-			case ErrPhoneNumberExists.Error():
-				return nil, ErrPhoneNumberExists
+			case ErrUserNotFound.Error():
+				return nil, ErrUserNotFound
 			}
 		}
 

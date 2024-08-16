@@ -126,9 +126,9 @@ func toUserProfileModel(u dbmodel.UserProfile) model.UserProfile {
 	return model.UserProfile{
 		ID:          u.ID,
 		UserID:      u.UserID,
-		Email:       u.Email,
-		Gender:      u.Gender,
-		DateOfBirth: u.DateOfBirth,
+		Email:       u.Email.String,
+		Gender:      model.GenderType(u.Gender.String),
+		DateOfBirth: u.DateOfBirth.Ptr(),
 		CreatedAt:   u.CreatedAt,
 		UpdatedAt:   u.UpdatedAt,
 	}

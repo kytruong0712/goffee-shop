@@ -20,9 +20,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	UserService_SignupAccount_FullMethodName   = "/UserService/SignupAccount"
-	UserService_ActivateAccount_FullMethodName = "/UserService/ActivateAccount"
-	UserService_Login_FullMethodName           = "/UserService/Login"
+	UserService_SignupAccount_FullMethodName     = "/UserService/SignupAccount"
+	UserService_ActivateAccount_FullMethodName   = "/UserService/ActivateAccount"
+	UserService_Login_FullMethodName             = "/UserService/Login"
+	UserService_UpdateUserProfile_FullMethodName = "/UserService/UpdateUserProfile"
 )
 
 // UserServiceClient is the client API for UserService service.
@@ -32,6 +33,7 @@ type UserServiceClient interface {
 	SignupAccount(ctx context.Context, in *SignupAccountRequest, opts ...grpc.CallOption) (*SignupAccountResponse, error)
 	ActivateAccount(ctx context.Context, in *ActivateAccountRequest, opts ...grpc.CallOption) (*common.Empty, error)
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
+	UpdateUserProfile(ctx context.Context, in *UpdateUserProfileRequest, opts ...grpc.CallOption) (*UpdateUserProfileResponse, error)
 }
 
 type userServiceClient struct {
@@ -72,6 +74,16 @@ func (c *userServiceClient) Login(ctx context.Context, in *LoginRequest, opts ..
 	return out, nil
 }
 
+func (c *userServiceClient) UpdateUserProfile(ctx context.Context, in *UpdateUserProfileRequest, opts ...grpc.CallOption) (*UpdateUserProfileResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateUserProfileResponse)
+	err := c.cc.Invoke(ctx, UserService_UpdateUserProfile_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility.
@@ -79,6 +91,7 @@ type UserServiceServer interface {
 	SignupAccount(context.Context, *SignupAccountRequest) (*SignupAccountResponse, error)
 	ActivateAccount(context.Context, *ActivateAccountRequest) (*common.Empty, error)
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
+	UpdateUserProfile(context.Context, *UpdateUserProfileRequest) (*UpdateUserProfileResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -97,6 +110,9 @@ func (UnimplementedUserServiceServer) ActivateAccount(context.Context, *Activate
 }
 func (UnimplementedUserServiceServer) Login(context.Context, *LoginRequest) (*LoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
+}
+func (UnimplementedUserServiceServer) UpdateUserProfile(context.Context, *UpdateUserProfileRequest) (*UpdateUserProfileResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateUserProfile not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 func (UnimplementedUserServiceServer) testEmbeddedByValue()                     {}
@@ -173,6 +189,24 @@ func _UserService_Login_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_UpdateUserProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateUserProfileRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).UpdateUserProfile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_UpdateUserProfile_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).UpdateUserProfile(ctx, req.(*UpdateUserProfileRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -191,6 +225,10 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Login",
 			Handler:    _UserService_Login_Handler,
+		},
+		{
+			MethodName: "UpdateUserProfile",
+			Handler:    _UserService_UpdateUserProfile_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

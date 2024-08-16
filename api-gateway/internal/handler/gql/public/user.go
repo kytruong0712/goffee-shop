@@ -3,7 +3,6 @@ package public
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log"
 	"strings"
 
@@ -20,7 +19,6 @@ func (r *mutationResolver) Signup(ctx context.Context, req mod.SignupRequest) (*
 		return nil, err
 	}
 	rs, err := r.usrCtrl.Signup(ctx, inp)
-	fmt.Printf("Signup ctrl result: %+v\n", rs)
 
 	if err != nil {
 		log.Println(err)

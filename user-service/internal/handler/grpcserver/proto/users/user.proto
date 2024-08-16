@@ -11,7 +11,7 @@ service UserService {
   rpc SignupAccount(SignupAccountRequest) returns (SignupAccountResponse);
   rpc ActivateAccount(ActivateAccountRequest) returns (Empty);
   rpc Login(LoginRequest) returns (LoginResponse);
-  rpc UpdateUserProfile(UpdateUserProfileRequest) returns (UserProfileResponse);
+  rpc UpdateUserProfile(UpdateUserProfileRequest) returns (UpdateUserProfileResponse);
 }
 
 
@@ -24,7 +24,7 @@ message SignupAccountRequest {
 message UpdateUserProfileRequest {
   int64 iam_id = 1 [json_name = "iam_id"];
   string email = 2 [json_name = "email"];
-  string gender = 3 [json_name = "gender"];
+  GenderType gender = 3 [json_name = "gender"];
   google.type.Date date_of_birth = 4 [json_name = "date_of_birth"];
 }
 
@@ -32,7 +32,7 @@ message SignupAccountResponse {
   User data = 1 [json_name = "data"];
 }
 
-message UserProfileResponse {
+message UpdateUserProfileResponse {
   UserProfile data = 1 [json_name = "data"];
 }
 
@@ -48,7 +48,7 @@ message User {
 message UserProfile {
   int64 iam_id = 1 [json_name = "iam_id"];
   string email = 2 [json_name = "email"];
-  string gender = 3 [json_name = "gender"];
+  GenderType gender = 3 [json_name = "gender"];
   google.type.Date date_of_birth = 4 [json_name = "date_of_birth"];
   google.protobuf.Timestamp created_at = 5 [json_name = "created_at"];
   google.protobuf.Timestamp updated_at = 6 [json_name = "updated_at"];
