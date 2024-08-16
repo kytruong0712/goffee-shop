@@ -11,5 +11,6 @@ services:
     environment:
       SERVER_ADDR: ":3003"
       USER_SERVICE_ADDR: user-service:50051
+      JWT_KEY: "CCO3rTNkzj5ll9JogQW5"
 volumes:
   data:

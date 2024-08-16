@@ -10,6 +10,7 @@ import (
 	"github.com/kytruong0712/goffee-shop/api-gateway/internal/gateway/grpcclient"
 	"github.com/kytruong0712/goffee-shop/api-gateway/internal/infra/config"
 	"github.com/kytruong0712/goffee-shop/api-gateway/internal/infra/httpserver"
+	"github.com/kytruong0712/goffee-shop/api-gateway/internal/infra/iam"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/backoff"
@@ -17,14 +18,15 @@ import (
 
 func main() {
 	banner.Print()
-	// rootCtx
-	ctx := context.Background()
 
 	// Initial config
 	cfg, err := initConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	ctx := context.Background()
+	ctx = iam.SetConfigToContext(ctx, cfg.IamCfg)
 
 	client, err := initGRPCClient(cfg)
 	if err != nil {

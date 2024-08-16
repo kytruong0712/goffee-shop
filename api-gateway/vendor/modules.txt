@@ -29,6 +29,9 @@ github.com/agnivade/levenshtein
 # github.com/cpuguy83/go-md2man/v2 v2.0.4
 ## explicit; go 1.11
 github.com/cpuguy83/go-md2man/v2/md2man
+# github.com/dgrijalva/jwt-go v3.2.0+incompatible
+## explicit
+github.com/dgrijalva/jwt-go
 # github.com/go-chi/chi/v5 v5.1.0
 ## explicit; go 1.14
 github.com/go-chi/chi/v5

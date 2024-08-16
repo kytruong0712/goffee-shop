@@ -6,6 +6,7 @@ import (
 	"github.com/kytruong0712/goffee-shop/api-gateway/internal/controller/user"
 	"github.com/kytruong0712/goffee-shop/api-gateway/internal/handler/gql/authenticated"
 	"github.com/kytruong0712/goffee-shop/api-gateway/internal/handler/gql/public"
+	"github.com/kytruong0712/goffee-shop/api-gateway/internal/infra/iam"
 	"github.com/kytruong0712/goffee-shop/api-gateway/internal/infra/protocols/gql"
 
 	"github.com/go-chi/chi/v5"
@@ -30,6 +31,8 @@ func (rtr router) public(r chi.Router) {
 
 func (rtr router) authenticated(r chi.Router) {
 	const prefix = "/gateway/authenticated"
+
+	r.Use(iam.AuthenticateUserMiddleware(rtr.ctx))
 
 	r.Handle(prefix+"/graphql", gql.Handler(authenticated.NewSchema(rtr.userCtrl), true))
 }
