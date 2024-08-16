@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/kytruong0712/goffee-shop/user-service/internal/infra/iam"
@@ -64,5 +65,9 @@ func generateJWTToken(i impl, u model.User) (string, error) {
 		},
 	})
 
-	return token, pkgerrors.WithStack(err)
+	if err != nil {
+		return "", pkgerrors.WithStack(err)
+	}
+
+	return fmt.Sprintf("Bearer %v", token), nil
 }

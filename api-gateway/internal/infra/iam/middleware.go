@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/kytruong0712/goffee-shop/api-gateway/internal/infra/httpserver"
 )
@@ -17,6 +18,7 @@ func AuthenticateUserMiddleware(rootCtx context.Context) func(next http.Handler)
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 			strToken := r.Header.Get("Authorization")
+			strToken = strings.TrimPrefix(strToken, "Bearer ")
 			if strToken == "" {
 				httpserver.RespondJSON(w, ErrAuthenticationFailed)
 				return
