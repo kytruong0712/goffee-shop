@@ -1,0 +1,8 @@
+type SignupResponse {
+    iamID: Int64!
+}
+
+type LoginResponse {
+    iamID: Int64!
+    token: String!
+}

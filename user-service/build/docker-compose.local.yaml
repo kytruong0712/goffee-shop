@@ -1,0 +1,52 @@
+services:
+  database:
+    container_name: user-service-pg-local
+    image: postgres:15-alpine
+    restart: "no"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: user-service-pg
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+    ports:
+      - "5432:5432"
+    volumes:
+      - data:/var/lib/postgresql/data
+  migrate:
+    image: migrate/migrate:v4.15.2
+    profiles: [ "tools" ]
+    volumes:
+      - ../data/migrations:/migrations
+    entrypoint:
+      [
+        "migrate",
+        "-path",
+        "/migrations",
+        "-database",
+        "postgres://postgres:postgres@database:5432/user-service-pg?sslmode=disable",
+      ]
+    command: [ "up" ]
+    depends_on:
+      database:
+        condition: service_healthy
+  user-service:
+    container_name: user-service-go-local
+    image: golang:latest
+    working_dir: /user-service
+    volumes:
+      - ../:/user-service
+    command: go run -mod=vendor cmd/serverd/main.go
+    ports:
+      - "50051:50051"
+    depends_on:
+      - database
+    environment:
+      PG_URL: postgres://postgres:postgres@database:5432/user-service-pg?sslmode=disable
+      SERVER_ADDR: 0.0.0.0:50051
+      JWT_KEY: "CCO3rTNkzj5ll9JogQW5"
+volumes:
+  data:

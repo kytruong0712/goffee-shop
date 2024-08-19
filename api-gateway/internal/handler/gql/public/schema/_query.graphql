@@ -1,0 +1,3 @@
+type Query {
+    login(req: LoginRequest!): LoginResponse!
+}

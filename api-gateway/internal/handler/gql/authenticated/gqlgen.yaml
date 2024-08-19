@@ -1,0 +1,25 @@
+schema:
+  - schema/*.graphql
+
+exec:
+  filename: gqlgenerated.go
+  package: authenticated
+
+model:
+  filename: ../mod/models_gen.go
+
+skip_validation: true
+skip_mod_tidy: true
+struct_tag: json
+
+models:
+  Int64:
+    model: github.com/kytruong0712/goffee-shop/api-gateway/internal/infra/protocols/gql/scalar.Int64
+  Time:
+    model: github.com/kytruong0712/goffee-shop/api-gateway/internal/infra/protocols/gql/scalar.Time
+  Gender:
+    model: github.com/kytruong0712/goffee-shop/api-gateway/internal/model.Gender
+  UpdateUserProfileRequest:
+    model: github.com/kytruong0712/goffee-shop/api-gateway/internal/handler/gql/mod.UpdateUserProfileRequest
+  UserProfile:
+    model: github.com/kytruong0712/goffee-shop/api-gateway/internal/handler/gql/mod.UserProfile

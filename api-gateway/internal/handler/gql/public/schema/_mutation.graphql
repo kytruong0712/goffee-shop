@@ -1,0 +1,4 @@
+type Mutation {
+    signup(req: SignupRequest!): SignupResponse!
+    activate(iamID: Int64!): Boolean!
+}

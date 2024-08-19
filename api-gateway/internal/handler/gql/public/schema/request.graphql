@@ -1,0 +1,10 @@
+input SignupRequest {
+    fullName: String!
+    phoneNumber: String!
+    password: String!
+}
+
+input LoginRequest {
+    phoneNumber: String!
+    password: String!
+}

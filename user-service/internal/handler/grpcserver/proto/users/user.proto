@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+option go_package = "github.com/kytruong0712/goffee-shop/user-service/internal/handler/grpcserver/protogen/users";
+
+import "common/enum.proto";
+import "common/empty.proto";
+import "google/timestamppb/timestamp.proto";
+import "google/api/date.proto";
+
+service UserService {
+  rpc SignupAccount(SignupAccountRequest) returns (SignupAccountResponse);
+  rpc ActivateAccount(ActivateAccountRequest) returns (Empty);
+  rpc Login(LoginRequest) returns (LoginResponse);
+  rpc UpdateUserProfile(UpdateUserProfileRequest) returns (UpdateUserProfileResponse);
+}
+
+
+message SignupAccountRequest {
+  string full_name = 1 [json_name = "full_name"];
+  string phone_number = 2 [json_name = "phone_number"];
+  string password = 3 [json_name = "password"];
+}
+
+message UpdateUserProfileRequest {
+  int64 iam_id = 1 [json_name = "iam_id"];
+  string email = 2 [json_name = "email"];
+  GenderType gender = 3 [json_name = "gender"];
+  google.type.Date date_of_birth = 4 [json_name = "date_of_birth"];
+}
+
+message SignupAccountResponse {
+  User data = 1 [json_name = "data"];
+}
+
+message UpdateUserProfileResponse {
+  UserProfile data = 1 [json_name = "data"];
+}
+
+message User {
+  int64 iam_id = 1 [json_name = "iam_id"];
+  string full_name = 2 [json_name = "full_name"];
+  string phone_number = 3 [json_name = "phone_number"];
+  UserStatus status = 4 [json_name = "status"];
+  google.protobuf.Timestamp created_at = 5 [json_name = "created_at"];
+  google.protobuf.Timestamp updated_at = 6 [json_name = "updated_at"];
+}
+
+message UserProfile {
+  int64 iam_id = 1 [json_name = "iam_id"];
+  string email = 2 [json_name = "email"];
+  GenderType gender = 3 [json_name = "gender"];
+  google.type.Date date_of_birth = 4 [json_name = "date_of_birth"];
+  google.protobuf.Timestamp created_at = 5 [json_name = "created_at"];
+  google.protobuf.Timestamp updated_at = 6 [json_name = "updated_at"];
+}
+
+message ActivateAccountRequest {
+  int64 iam_id = 1 [json_name = "iam_id"];
+}
+
+message LoginRequest {
+  string phone_number = 1 [json_name = "phone_number"];
+  string password = 2 [json_name = "password"];
+}
+
+message LoginResponse {
+  int64 iam_id = 1 [json_name = "iam_id"];
+  string token = 2 [json_name = "token"];
+}
