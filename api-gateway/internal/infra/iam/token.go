@@ -10,7 +10,7 @@ import (
 
 // JWTClaim represents jwt claim info
 type JWTClaim struct {
-	HostProfile HostProfile `json:"host_profile"`
+	UserProfile UserProfile `json:"user_profile"`
 	jwt.StandardClaims
 }
 
@@ -51,11 +51,11 @@ func (cfg Config) ValidateToken(strToken string) (*jwt.Token, error) {
 }
 
 // GetUserProfileFomToken extracts user profile from token
-func GetUserProfileFomToken(token *jwt.Token) (HostProfile, error) {
+func GetUserProfileFomToken(token *jwt.Token) (UserProfile, error) {
 	claims, ok := token.Claims.(*JWTClaim)
 	if !ok {
-		return HostProfile{}, errors.New("token claims missing")
+		return UserProfile{}, errors.New("token claims missing")
 	}
 
-	return claims.HostProfile, nil
+	return claims.UserProfile, nil
 }

@@ -49,13 +49,3 @@ func (cfg Config) ValidateToken(strToken string) (*jwt.Token, error) {
 
 	return token, nil
 }
-
-// GetUserProfileFomToken extracts user profile from token
-func GetUserProfileFomToken(token *jwt.Token) (UserProfile, error) {
-	claims, ok := token.Claims.(*JWTClaim)
-	if !ok {
-		return UserProfile{}, errors.New("token claims missing")
-	}
-
-	return claims.UserProfile, nil
-}

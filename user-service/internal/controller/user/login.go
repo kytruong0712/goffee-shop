@@ -32,11 +32,11 @@ func (i impl) DoLogin(ctx context.Context, inp LoginInput) (model.LoginResponse,
 		return model.LoginResponse{}, err
 	}
 
-	if err := checkAuth(inp, u); err != nil {
+	if err := i.checkAuth(inp, u); err != nil {
 		return model.LoginResponse{}, err
 	}
 
-	token, err := generateJWTToken(i, u)
+	token, err := i.generateJWTToken(u)
 	if err != nil {
 		return model.LoginResponse{}, err
 	}
@@ -47,7 +47,7 @@ func (i impl) DoLogin(ctx context.Context, inp LoginInput) (model.LoginResponse,
 	}, nil
 }
 
-func checkAuth(inp LoginInput, u model.User) error {
+func (impl) checkAuth(inp LoginInput, u model.User) error {
 	if err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(inp.Password)); err != nil {
 		return ErrLoginIDOrPasswordIsIncorrect
 	}
@@ -55,13 +55,15 @@ func checkAuth(inp LoginInput, u model.User) error {
 	return nil
 }
 
-func generateJWTToken(i impl, u model.User) (string, error) {
+func (i impl) generateJWTToken(u model.User) (string, error) {
 	token, err := i.iamCfg.GenerateToken(iam.JWTClaim{
 		UserProfile: iam.UserProfile{
-			AccountID: u.ID,
+			AccountID:   u.ID,
+			PhoneNumber: u.PhoneNumber,
+			FullName:    u.FullName,
 		},
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(10 * time.Minute).Unix(),
+			ExpiresAt: time.Now().Add(60 * time.Minute).Unix(),
 		},
 	})
 

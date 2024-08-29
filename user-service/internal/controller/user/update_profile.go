@@ -3,10 +3,10 @@ package user
 import (
 	"context"
 	"errors"
-	"github.com/kytruong0712/goffee-shop/user-service/internal/repository/user"
 	"time"
 
 	"github.com/kytruong0712/goffee-shop/user-service/internal/model"
+	"github.com/kytruong0712/goffee-shop/user-service/internal/repository/user"
 )
 
 // UpdateProfileInput represents the input struct to update user profile

@@ -25,7 +25,10 @@ type UpdateUserParams struct {
 type UserFieldToUpdate string
 
 var (
-	UserFieldStatus = UserFieldToUpdate(dbmodel.UserColumns.Status)
+	UserFieldStatus              = UserFieldToUpdate(dbmodel.UserColumns.Status)
+	UserFieldHashedOTP           = UserFieldToUpdate(dbmodel.UserColumns.HashedOtp)
+	UserFieldOTPExpiryTime       = UserFieldToUpdate(dbmodel.UserColumns.OtpExpiryTime)
+	UserFieldPhoneNumberVerified = UserFieldToUpdate(dbmodel.UserColumns.PhoneNumberVerified)
 )
 
 // UpdateUserStatus supports update user status
@@ -33,6 +36,18 @@ func (i impl) UpdateUserStatus(ctx context.Context, userID int64, status model.U
 	if err := i.UpdateUser(ctx, UpdateUserParams{
 		User:           model.User{ID: userID, Status: status},
 		FieldsToUpdate: []UserFieldToUpdate{UserFieldStatus},
+	}); err != nil {
+		return pkgerrors.WithStack(err)
+	}
+
+	return nil
+}
+
+// UpdateUserOTP supports update user otp
+func (i impl) UpdateUserOTP(ctx context.Context, userID int64, otp string) error {
+	if err := i.UpdateUser(ctx, UpdateUserParams{
+		User:           model.User{ID: userID, OTP: otp},
+		FieldsToUpdate: []UserFieldToUpdate{UserFieldHashedOTP},
 	}); err != nil {
 		return pkgerrors.WithStack(err)
 	}
@@ -61,6 +76,9 @@ func (i impl) UpdateUser(ctx context.Context, params UpdateUserParams) error {
 	}
 
 	updateUser.Status = params.User.Status.String()
+	updateUser.HashedOtp = null.StringFrom(params.User.OTP)
+	updateUser.OtpExpiryTime = null.TimeFrom(params.User.OTPExpiryTime)
+	updateUser.PhoneNumberVerified = params.User.PhoneNumberVerified
 
 	rowsAffected, err := updateUser.Update(ctx, i.dbConn, whiteListColumns)
 	if err != nil {

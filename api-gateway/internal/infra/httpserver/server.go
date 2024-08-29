@@ -11,6 +11,7 @@ import (
 	"time"
 )
 
+// Start starts server
 func Start(handler http.Handler, cfg Config) {
 	svr := &http.Server{
 		Addr:    cfg.ServerAddr,

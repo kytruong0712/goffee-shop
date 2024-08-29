@@ -2,13 +2,11 @@ package user
 
 import (
 	"context"
-	"log"
 	"time"
 
-	"github.com/kytruong0712/goffee-shop/api-gateway/internal/gateway/grpcclient/protogen/common"
-	"github.com/kytruong0712/goffee-shop/api-gateway/internal/gateway/grpcclient/protogen/users"
-
+	"github.com/kytruong0712/goffee-shop/api-gateway/internal/gateway/user/protobuf"
 	"github.com/kytruong0712/goffee-shop/api-gateway/internal/model"
+
 	"google.golang.org/genproto/googleapis/type/date"
 )
 
@@ -23,7 +21,7 @@ type UpdateProfileInput struct {
 // UpdateProfile updates user profile
 func (i impl) UpdateProfile(ctx context.Context, inp UpdateProfileInput) (model.UserProfile, error) {
 	req := toUpdateUserProfileRequest(inp)
-	rs, err := i.grpcClient.UserServiceClient().UpdateUserProfile(ctx, req)
+	rs, err := i.userGwy.UpdateUserProfile(ctx, req)
 	if err != nil {
 		return model.UserProfile{}, err
 	}
@@ -36,19 +34,17 @@ func (i impl) UpdateProfile(ctx context.Context, inp UpdateProfileInput) (model.
 		UpdatedAt:   rs.Data.UpdatedAt.AsTime(),
 	}
 
-	if rs.Data.Gender == common.GenderType_MALE {
-		resp.Gender = model.GenderType(common.GenderType_MALE.String())
-	} else if rs.Data.Gender == common.GenderType_FEMALE {
-		resp.Gender = model.GenderType(common.GenderType_FEMALE.String())
+	if rs.Data.Gender == protobuf.GenderType_MALE {
+		resp.Gender = model.GenderType(protobuf.GenderType_MALE.String())
+	} else if rs.Data.Gender == protobuf.GenderType_FEMALE {
+		resp.Gender = model.GenderType(protobuf.GenderType_FEMALE.String())
 	}
 
 	return resp, nil
 }
 
-func toUpdateUserProfileRequest(inp UpdateProfileInput) *users.UpdateUserProfileRequest {
-	log.Println("fired to update user profile")
-
-	req := &users.UpdateUserProfileRequest{
+func toUpdateUserProfileRequest(inp UpdateProfileInput) *protobuf.UpdateUserProfileRequest {
+	req := &protobuf.UpdateUserProfileRequest{
 		IamId: inp.IamID,
 		Email: inp.Email,
 	}
@@ -56,9 +52,9 @@ func toUpdateUserProfileRequest(inp UpdateProfileInput) *users.UpdateUserProfile
 	req.Gender.Number()
 
 	if inp.Gender == model.GenderMale {
-		req.Gender = common.GenderType_MALE
+		req.Gender = protobuf.GenderType_MALE
 	} else if inp.Gender == model.GenderFemale {
-		req.Gender = common.GenderType_FEMALE
+		req.Gender = protobuf.GenderType_FEMALE
 	}
 
 	if inp.DateOfBirth != nil {

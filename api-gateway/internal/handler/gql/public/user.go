@@ -21,8 +21,8 @@ func (r *mutationResolver) Signup(ctx context.Context, req mod.SignupRequest) (*
 	rs, err := r.usrCtrl.Signup(ctx, inp)
 
 	if err != nil {
-		log.Println(err)
-		return nil, convertToClientErr(err)
+		log.Println("Signup err: ", err)
+		return nil, convertCtrlErr(err)
 	}
 
 	return &mod.SignupResponse{
@@ -58,17 +58,6 @@ func toSignupInput(req mod.SignupRequest) (user.SignupInput, error) {
 	}, nil
 }
 
-// Activate is graphql endpoint to support create activate created user account
-func (r *mutationResolver) Activate(ctx context.Context, iamID int64) (bool, error) {
-	if iamID <= 0 {
-		return false, webErrIamIDIsRequired
-	}
-
-	err := r.usrCtrl.Activate(ctx, iamID)
-
-	return err == nil, convertToClientErr(err)
-}
-
 // Login is graphql endpoint to authenticate user
 func (r *queryResolver) Login(ctx context.Context, req mod.LoginRequest) (*mod.LoginResponse, error) {
 	inp, err := toLoginInput(req)
@@ -78,7 +67,8 @@ func (r *queryResolver) Login(ctx context.Context, req mod.LoginRequest) (*mod.L
 
 	rs, err := r.usrCtrl.Login(ctx, inp)
 	if err != nil {
-		return nil, convertToClientErr(err)
+		log.Println("Login err: ", err)
+		return nil, convertCtrlErr(err)
 	}
 
 	return &mod.LoginResponse{

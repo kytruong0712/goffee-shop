@@ -14,6 +14,8 @@ type Repository interface {
 	InsertUser(context.Context, model.User) (model.User, error)
 	// InsertUserProfile supports insert user profile data to db
 	InsertUserProfile(context.Context, model.UserProfile) (model.UserProfile, error)
+	// UpdateUserOTP supports update user otp
+	UpdateUserOTP(context.Context, int64, string) error
 	// UpdateUser supports update user data
 	UpdateUser(context.Context, UpdateUserParams) error
 	// UpdateUserProfile supports update user profile data

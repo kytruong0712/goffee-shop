@@ -26,3 +26,9 @@ type UserAccount struct {
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }
+
+// ActivateUserResponse represents data response when activating user
+type ActivateUserResponse struct {
+	Status  string
+	Message string
+}

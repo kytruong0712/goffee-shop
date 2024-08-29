@@ -1,14 +1,7 @@
-input UpdateUserProfileRequest {
-    iamID: Int64!
-    email: String
-    gender: Gender
-    dateOfBirth: Time
-}
-
 type UserProfile {
     iamID: Int64!
     email: String
-    gender: Gender
+    genderType: GenderType
     dateOfBirth: Time
     createdAt: Time!
     updatedAt: Time!

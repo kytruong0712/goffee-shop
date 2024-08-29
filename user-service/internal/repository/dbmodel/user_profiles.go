@@ -416,7 +416,7 @@ func (userProfileL) LoadUser(ctx context.Context, e boil.ContextExecutor, singul
 		if foreign.R == nil {
 			foreign.R = &userR{}
 		}
-		foreign.R.UserProfiles = append(foreign.R.UserProfiles, object)
+		foreign.R.UserProfile = object
 		return nil
 	}
 
@@ -427,7 +427,7 @@ func (userProfileL) LoadUser(ctx context.Context, e boil.ContextExecutor, singul
 				if foreign.R == nil {
 					foreign.R = &userR{}
 				}
-				foreign.R.UserProfiles = append(foreign.R.UserProfiles, local)
+				foreign.R.UserProfile = local
 				break
 			}
 		}
@@ -438,7 +438,7 @@ func (userProfileL) LoadUser(ctx context.Context, e boil.ContextExecutor, singul
 
 // SetUser of the userProfile to the related item.
 // Sets o.R.User to related.
-// Adds o to related.R.UserProfiles.
+// Adds o to related.R.UserProfile.
 func (o *UserProfile) SetUser(ctx context.Context, exec boil.ContextExecutor, insert bool, related *User) error {
 	var err error
 	if insert {
@@ -474,10 +474,10 @@ func (o *UserProfile) SetUser(ctx context.Context, exec boil.ContextExecutor, in
 
 	if related.R == nil {
 		related.R = &userR{
-			UserProfiles: UserProfileSlice{o},
+			UserProfile: o,
 		}
 	} else {
-		related.R.UserProfiles = append(related.R.UserProfiles, o)
+		related.R.UserProfile = o
 	}
 
 	return nil

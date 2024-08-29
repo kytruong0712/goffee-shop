@@ -24,7 +24,7 @@ func (i impl) SignupAccount(ctx context.Context, inp SignupAccountInput) (user m
 	}
 
 	if isExists {
-		return model.User{}, pkgerrors.WithStack(ErrPhoneNumberExists)
+		return model.User{}, pkgerrors.WithStack(ErrPhoneNumberAlreadyExists)
 	}
 
 	newUser := model.User{
@@ -33,14 +33,14 @@ func (i impl) SignupAccount(ctx context.Context, inp SignupAccountInput) (user m
 		Status:      model.UserStatusInactive,
 	}
 
-	if newUser.Password, err = generateHash(inp.Password); err != nil {
+	if newUser.Password, err = i.generateHash(inp.Password); err != nil {
 		return model.User{}, err
 	}
 
 	return i.repo.User().InsertUser(ctx, newUser)
 }
 
-func generateHash(password string) (string, error) {
+func (i impl) generateHash(password string) (string, error) {
 	hashedPwd, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return "", pkgerrors.WithStack(err)

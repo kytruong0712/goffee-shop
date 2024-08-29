@@ -4,23 +4,24 @@ import (
 	"context"
 )
 
-var UserProfileKey = "host_profile"
+var UserProfileKey = "user_profile"
 
-// HostProfile represents host profile information
-type HostProfile struct {
-	ID    int64
-	Email string
+// UserProfile represents user account data information
+type UserProfile struct {
+	AccountID   int64
+	PhoneNumber string
+	FullName    string
 }
 
-// SetUserProfileInContext sets the HostProfile in the given context
-func SetUserProfileInContext(ctx context.Context, p HostProfile) context.Context {
+// SetUserProfileInContext sets the UserProfile in the given context
+func SetUserProfileInContext(ctx context.Context, p UserProfile) context.Context {
 	return context.WithValue(ctx, UserProfileKey, p)
 }
 
-// UserProfileFromContext gets the HostProfile from the given context
-func UserProfileFromContext(ctx context.Context) HostProfile {
-	if v, ok := ctx.Value(UserProfileKey).(HostProfile); ok {
+// UserProfileFromContext gets the UserProfile from the given context
+func UserProfileFromContext(ctx context.Context) UserProfile {
+	if v, ok := ctx.Value(UserProfileKey).(UserProfile); ok {
 		return v
 	}
-	return HostProfile{}
+	return UserProfile{}
 }

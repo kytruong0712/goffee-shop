@@ -2,8 +2,8 @@ package user
 
 import (
 	"context"
-	
-	"github.com/kytruong0712/goffee-shop/api-gateway/internal/gateway/grpcclient/protogen/users"
+
+	"github.com/kytruong0712/goffee-shop/api-gateway/internal/gateway/user/protobuf"
 	"github.com/kytruong0712/goffee-shop/api-gateway/internal/model"
 )
 
@@ -16,7 +16,7 @@ type SignupInput struct {
 
 // Signup creates new user account
 func (i impl) Signup(ctx context.Context, inp SignupInput) (model.UserAccount, error) {
-	rs, err := i.grpcClient.UserServiceClient().SignupAccount(ctx, &users.SignupAccountRequest{
+	rs, err := i.userGwy.SignupAccount(ctx, &protobuf.SignupAccountRequest{
 		FullName:    inp.FullName,
 		PhoneNumber: inp.PhoneNumber,
 		Password:    inp.Password,

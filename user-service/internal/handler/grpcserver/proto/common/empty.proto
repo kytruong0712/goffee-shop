@@ -1,5 +1,0 @@
-syntax = "proto3";
-
-option go_package = "github.com/kytruong0712/goffee-shop/user-service/internal/handler/grpcserver/protogen/common";
-
-message Empty {}

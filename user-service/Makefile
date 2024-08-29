@@ -55,11 +55,19 @@ pg-drop:
 	docker-compose -f ${DOCKER_COMPOSE_FILE} -p=${PROJECT_NAME} --profile tools run --rm migrate drop
 	@echo Done!
 
-## protoc: executes protobuf compiler command to generate Go-specific code
-protoc:
-	cd internal/handler/grpcserver/proto && protoc --go_out=../protogen --go_opt=paths=source_relative \
-	--go-grpc_out=../protogen --go-grpc_opt=paths=source_relative \
-	./**/*.proto
+## Ex: make protoc-gateway name=notification
+protoc-gateway:
+	cd internal/gateway/$(name)/protobuf && protoc \
+	--go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative \
+	./*.proto
+
+protoc-handler:
+	cd internal/handler/grpc/protobuf && protoc \
+	--go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative \
+	./*.proto
+
+kafka:
+	docker-compose -f ${DOCKER_COMPOSE_FILE} -p=${PROJECT_NAME} up -d kafka
 
 ## down: removes all docker containers
 down:

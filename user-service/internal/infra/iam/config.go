@@ -1,7 +1,6 @@
 package iam
 
 import (
-	"context"
 	"errors"
 	"os"
 )
@@ -25,21 +24,4 @@ func (c Config) Validate() error {
 	}
 
 	return nil
-}
-
-// IAmConfigKey is key for getter/setter value from/to context
-var IAmConfigKey = "iam_config"
-
-// SetConfigToContext sets the iam config in the given context
-func SetConfigToContext(ctx context.Context, config Config) context.Context {
-	return context.WithValue(ctx, IAmConfigKey, config)
-}
-
-// ConfigFromContext gets the iam config from the given context
-func ConfigFromContext(ctx context.Context) Config {
-	if v, ok := ctx.Value(IAmConfigKey).(Config); ok {
-
-		return v
-	}
-	return Config{}
 }
