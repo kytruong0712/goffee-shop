@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option go_package = "github.com/kytruong0712/goffee-shop/user-service/internal/gateway/notification/protobuf";
+
+service Notification {
+  rpc SendOTP(SendOTPRequest) returns (SendOTPResponse);
+}
+
+message SendOTPRequest {
+  string phone_number = 1 [json_name = "phone_number"];
+  string one_time_password = 2 [json_name = "one_time_password"];
+  string country_code = 3 [json_name = "country_code"];
+}
+
+message SendOTPResponse {
+  string status = 1 [json_name = "status"];
+  string message = 2 [json_name = "message"];
+}

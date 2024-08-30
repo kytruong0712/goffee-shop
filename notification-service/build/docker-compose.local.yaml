@@ -1,0 +1,17 @@
+services:
+  notification-service:
+    container_name: notification-service-go-local
+    image: golang:latest
+    working_dir: /notification-service
+    volumes:
+      - ../:/notification-service
+    command: go run -mod=vendor cmd/serverd/main.go
+    ports:
+      - "50052:50052"
+    environment:
+      SERVER_ADDR: 0.0.0.0:50052
+      TWILIO_ACCOUNT_SID: test
+      TWILIO_AUTH_TOKEN: test
+      TWILIO_SENDER_PHONE_NUMBER: test
+volumes:
+  data:

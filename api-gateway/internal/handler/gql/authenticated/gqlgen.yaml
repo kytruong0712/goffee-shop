@@ -17,9 +17,17 @@ models:
     model: github.com/kytruong0712/goffee-shop/api-gateway/internal/infra/protocols/gql/scalar.Int64
   Time:
     model: github.com/kytruong0712/goffee-shop/api-gateway/internal/infra/protocols/gql/scalar.Time
-  Gender:
-    model: github.com/kytruong0712/goffee-shop/api-gateway/internal/model.Gender
-  UpdateUserProfileRequest:
-    model: github.com/kytruong0712/goffee-shop/api-gateway/internal/handler/gql/mod.UpdateUserProfileRequest
+  GenderType:
+    model: github.com/kytruong0712/goffee-shop/api-gateway/internal/model.GenderType
   UserProfile:
     model: github.com/kytruong0712/goffee-shop/api-gateway/internal/handler/gql/mod.UserProfile
+  CreateOTPRequest:
+    model: github.com/kytruong0712/goffee-shop/api-gateway/internal/handler/gql/mod.CreateOTPRequest
+  CreateOTPResponse:
+    model: github.com/kytruong0712/goffee-shop/api-gateway/internal/handler/gql/mod.CreateOTPResponse
+  ActivateUserRequest:
+    model: github.com/kytruong0712/goffee-shop/api-gateway/internal/handler/gql/mod.ActivateUserRequest
+  ActivateUserResponse:
+    model: github.com/kytruong0712/goffee-shop/api-gateway/internal/handler/gql/mod.ActivateUserResponse
+  UpdateUserProfileRequest:
+    model: github.com/kytruong0712/goffee-shop/api-gateway/internal/handler/gql/mod.UpdateUserProfileRequest

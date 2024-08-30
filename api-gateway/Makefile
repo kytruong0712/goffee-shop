@@ -20,10 +20,11 @@ api-go-generate:
 	sh -c 'go generate ./...'
 	@echo Done!
 
-protoc:
-	cd internal/gateway/grpcclient/proto && protoc --go_out=../protogen --go_opt=paths=source_relative \
-	--go-grpc_out=../protogen --go-grpc_opt=paths=source_relative \
-	./**/*.proto
+## Ex: make protoc-gateway name=user
+protoc-gateway:
+	cd internal/gateway/$(name)/protobuf && protoc \
+	--go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative \
+	./*.proto
 
 ## down: removes all docker containers
 down:

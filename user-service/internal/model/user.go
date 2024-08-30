@@ -19,14 +19,17 @@ func (s UserStatus) String() string {
 
 // User represents the user to populate
 type User struct {
-	ID          int64
-	IamID       int64
-	FullName    string
-	PhoneNumber string
-	Password    string
-	Status      UserStatus
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	ID                  int64
+	IamID               int64
+	FullName            string
+	Password            string
+	OTP                 string
+	PhoneNumber         string
+	PhoneNumberVerified bool
+	Status              UserStatus
+	OTPExpiryTime       time.Time
+	CreatedAt           time.Time
+	UpdatedAt           time.Time
 }
 
 // UserWithProfile represents user with profile

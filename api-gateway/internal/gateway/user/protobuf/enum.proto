@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+option go_package = "github.com/kytruong0712/goffee-shop/api-gateway/internal/gateway/user/protobuf";
+
+enum UserStatus {
+  ACTIVE = 0;
+  INACTIVE = 1;
+}
+
+enum GenderType {
+  MALE = 0;
+  FEMALE = 1;
+}

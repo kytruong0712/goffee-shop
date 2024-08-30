@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/friendsofgo/errors"
+	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -23,57 +24,72 @@ import (
 
 // User is an object representing the database table.
 type User struct {
-	ID             int64     `boil:"id" json:"id" toml:"id" yaml:"id"`
-	IamID          int64     `boil:"iam_id" json:"iam_id" toml:"iam_id" yaml:"iam_id"`
-	FullName       string    `boil:"full_name" json:"full_name" toml:"full_name" yaml:"full_name"`
-	PhoneNumber    string    `boil:"phone_number" json:"phone_number" toml:"phone_number" yaml:"phone_number"`
-	PasswordHashed string    `boil:"password_hashed" json:"password_hashed" toml:"password_hashed" yaml:"password_hashed"`
-	Status         string    `boil:"status" json:"status" toml:"status" yaml:"status"`
-	CreatedAt      time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
-	UpdatedAt      time.Time `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
+	ID                  int64       `boil:"id" json:"id" toml:"id" yaml:"id"`
+	IamID               int64       `boil:"iam_id" json:"iam_id" toml:"iam_id" yaml:"iam_id"`
+	FullName            string      `boil:"full_name" json:"full_name" toml:"full_name" yaml:"full_name"`
+	HashedPassword      string      `boil:"hashed_password" json:"hashed_password" toml:"hashed_password" yaml:"hashed_password"`
+	Status              string      `boil:"status" json:"status" toml:"status" yaml:"status"`
+	HashedOtp           null.String `boil:"hashed_otp" json:"hashed_otp,omitempty" toml:"hashed_otp" yaml:"hashed_otp,omitempty"`
+	PhoneNumber         string      `boil:"phone_number" json:"phone_number" toml:"phone_number" yaml:"phone_number"`
+	PhoneNumberVerified bool        `boil:"phone_number_verified" json:"phone_number_verified" toml:"phone_number_verified" yaml:"phone_number_verified"`
+	CreatedAt           time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	UpdatedAt           time.Time   `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
+	OtpExpiryTime       null.Time   `boil:"otp_expiry_time" json:"otp_expiry_time,omitempty" toml:"otp_expiry_time" yaml:"otp_expiry_time,omitempty"`
 
 	R *userR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L userL  `boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
 var UserColumns = struct {
-	ID             string
-	IamID          string
-	FullName       string
-	PhoneNumber    string
-	PasswordHashed string
-	Status         string
-	CreatedAt      string
-	UpdatedAt      string
+	ID                  string
+	IamID               string
+	FullName            string
+	HashedPassword      string
+	Status              string
+	HashedOtp           string
+	PhoneNumber         string
+	PhoneNumberVerified string
+	CreatedAt           string
+	UpdatedAt           string
+	OtpExpiryTime       string
 }{
-	ID:             "id",
-	IamID:          "iam_id",
-	FullName:       "full_name",
-	PhoneNumber:    "phone_number",
-	PasswordHashed: "password_hashed",
-	Status:         "status",
-	CreatedAt:      "created_at",
-	UpdatedAt:      "updated_at",
+	ID:                  "id",
+	IamID:               "iam_id",
+	FullName:            "full_name",
+	HashedPassword:      "hashed_password",
+	Status:              "status",
+	HashedOtp:           "hashed_otp",
+	PhoneNumber:         "phone_number",
+	PhoneNumberVerified: "phone_number_verified",
+	CreatedAt:           "created_at",
+	UpdatedAt:           "updated_at",
+	OtpExpiryTime:       "otp_expiry_time",
 }
 
 var UserTableColumns = struct {
-	ID             string
-	IamID          string
-	FullName       string
-	PhoneNumber    string
-	PasswordHashed string
-	Status         string
-	CreatedAt      string
-	UpdatedAt      string
+	ID                  string
+	IamID               string
+	FullName            string
+	HashedPassword      string
+	Status              string
+	HashedOtp           string
+	PhoneNumber         string
+	PhoneNumberVerified string
+	CreatedAt           string
+	UpdatedAt           string
+	OtpExpiryTime       string
 }{
-	ID:             "users.id",
-	IamID:          "users.iam_id",
-	FullName:       "users.full_name",
-	PhoneNumber:    "users.phone_number",
-	PasswordHashed: "users.password_hashed",
-	Status:         "users.status",
-	CreatedAt:      "users.created_at",
-	UpdatedAt:      "users.updated_at",
+	ID:                  "users.id",
+	IamID:               "users.iam_id",
+	FullName:            "users.full_name",
+	HashedPassword:      "users.hashed_password",
+	Status:              "users.status",
+	HashedOtp:           "users.hashed_otp",
+	PhoneNumber:         "users.phone_number",
+	PhoneNumberVerified: "users.phone_number_verified",
+	CreatedAt:           "users.created_at",
+	UpdatedAt:           "users.updated_at",
+	OtpExpiryTime:       "users.otp_expiry_time",
 }
 
 // Generated where
@@ -106,35 +122,41 @@ func (w whereHelperstring) NIN(slice []string) qm.QueryMod {
 }
 
 var UserWhere = struct {
-	ID             whereHelperint64
-	IamID          whereHelperint64
-	FullName       whereHelperstring
-	PhoneNumber    whereHelperstring
-	PasswordHashed whereHelperstring
-	Status         whereHelperstring
-	CreatedAt      whereHelpertime_Time
-	UpdatedAt      whereHelpertime_Time
+	ID                  whereHelperint64
+	IamID               whereHelperint64
+	FullName            whereHelperstring
+	HashedPassword      whereHelperstring
+	Status              whereHelperstring
+	HashedOtp           whereHelpernull_String
+	PhoneNumber         whereHelperstring
+	PhoneNumberVerified whereHelperbool
+	CreatedAt           whereHelpertime_Time
+	UpdatedAt           whereHelpertime_Time
+	OtpExpiryTime       whereHelpernull_Time
 }{
-	ID:             whereHelperint64{field: "\"users\".\"id\""},
-	IamID:          whereHelperint64{field: "\"users\".\"iam_id\""},
-	FullName:       whereHelperstring{field: "\"users\".\"full_name\""},
-	PhoneNumber:    whereHelperstring{field: "\"users\".\"phone_number\""},
-	PasswordHashed: whereHelperstring{field: "\"users\".\"password_hashed\""},
-	Status:         whereHelperstring{field: "\"users\".\"status\""},
-	CreatedAt:      whereHelpertime_Time{field: "\"users\".\"created_at\""},
-	UpdatedAt:      whereHelpertime_Time{field: "\"users\".\"updated_at\""},
+	ID:                  whereHelperint64{field: "\"users\".\"id\""},
+	IamID:               whereHelperint64{field: "\"users\".\"iam_id\""},
+	FullName:            whereHelperstring{field: "\"users\".\"full_name\""},
+	HashedPassword:      whereHelperstring{field: "\"users\".\"hashed_password\""},
+	Status:              whereHelperstring{field: "\"users\".\"status\""},
+	HashedOtp:           whereHelpernull_String{field: "\"users\".\"hashed_otp\""},
+	PhoneNumber:         whereHelperstring{field: "\"users\".\"phone_number\""},
+	PhoneNumberVerified: whereHelperbool{field: "\"users\".\"phone_number_verified\""},
+	CreatedAt:           whereHelpertime_Time{field: "\"users\".\"created_at\""},
+	UpdatedAt:           whereHelpertime_Time{field: "\"users\".\"updated_at\""},
+	OtpExpiryTime:       whereHelpernull_Time{field: "\"users\".\"otp_expiry_time\""},
 }
 
 // UserRels is where relationship names are stored.
 var UserRels = struct {
-	UserProfiles string
+	UserProfile string
 }{
-	UserProfiles: "UserProfiles",
+	UserProfile: "UserProfile",
 }
 
 // userR is where relationships are stored.
 type userR struct {
-	UserProfiles UserProfileSlice `boil:"UserProfiles" json:"UserProfiles" toml:"UserProfiles" yaml:"UserProfiles"`
+	UserProfile *UserProfile `boil:"UserProfile" json:"UserProfile" toml:"UserProfile" yaml:"UserProfile"`
 }
 
 // NewStruct creates a new relationship struct
@@ -142,20 +164,20 @@ func (*userR) NewStruct() *userR {
 	return &userR{}
 }
 
-func (r *userR) GetUserProfiles() UserProfileSlice {
+func (r *userR) GetUserProfile() *UserProfile {
 	if r == nil {
 		return nil
 	}
-	return r.UserProfiles
+	return r.UserProfile
 }
 
 // userL is where Load methods for each relationship are stored.
 type userL struct{}
 
 var (
-	userAllColumns            = []string{"id", "iam_id", "full_name", "phone_number", "password_hashed", "status", "created_at", "updated_at"}
-	userColumnsWithoutDefault = []string{"id", "iam_id", "full_name", "phone_number", "password_hashed", "status"}
-	userColumnsWithDefault    = []string{"created_at", "updated_at"}
+	userAllColumns            = []string{"id", "iam_id", "full_name", "hashed_password", "status", "hashed_otp", "phone_number", "phone_number_verified", "created_at", "updated_at", "otp_expiry_time"}
+	userColumnsWithoutDefault = []string{"id", "iam_id", "full_name", "hashed_password", "status", "phone_number"}
+	userColumnsWithDefault    = []string{"hashed_otp", "phone_number_verified", "created_at", "updated_at", "otp_expiry_time"}
 	userPrimaryKeyColumns     = []string{"id"}
 	userGeneratedColumns      = []string{}
 )
@@ -251,23 +273,20 @@ func (q userQuery) Exists(ctx context.Context, exec boil.ContextExecutor) (bool,
 	return count > 0, nil
 }
 
-// UserProfiles retrieves all the user_profile's UserProfiles with an executor.
-func (o *User) UserProfiles(mods ...qm.QueryMod) userProfileQuery {
-	var queryMods []qm.QueryMod
-	if len(mods) != 0 {
-		queryMods = append(queryMods, mods...)
+// UserProfile pointed to by the foreign key.
+func (o *User) UserProfile(mods ...qm.QueryMod) userProfileQuery {
+	queryMods := []qm.QueryMod{
+		qm.Where("\"user_id\" = ?", o.ID),
 	}
 
-	queryMods = append(queryMods,
-		qm.Where("\"user_profiles\".\"user_id\"=?", o.ID),
-	)
+	queryMods = append(queryMods, mods...)
 
 	return UserProfiles(queryMods...)
 }
 
-// LoadUserProfiles allows an eager lookup of values, cached into the
-// loaded structs of the objects. This is for a 1-M or N-M relationship.
-func (userL) LoadUserProfiles(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
+// LoadUserProfile allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for a 1-1 relationship.
+func (userL) LoadUserProfile(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
 	var slice []*User
 	var object *User
 
@@ -304,6 +323,7 @@ func (userL) LoadUserProfiles(ctx context.Context, e boil.ContextExecutor, singu
 			if obj.R == nil {
 				obj.R = &userR{}
 			}
+
 			args[obj.ID] = struct{}{}
 		}
 	}
@@ -329,36 +349,38 @@ func (userL) LoadUserProfiles(ctx context.Context, e boil.ContextExecutor, singu
 
 	results, err := query.QueryContext(ctx, e)
 	if err != nil {
-		return errors.Wrap(err, "failed to eager load user_profiles")
+		return errors.Wrap(err, "failed to eager load UserProfile")
 	}
 
 	var resultSlice []*UserProfile
 	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice user_profiles")
+		return errors.Wrap(err, "failed to bind eager loaded slice UserProfile")
 	}
 
 	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results in eager load on user_profiles")
+		return errors.Wrap(err, "failed to close results of eager load for user_profiles")
 	}
 	if err = results.Err(); err != nil {
 		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for user_profiles")
 	}
 
-	if singular {
-		object.R.UserProfiles = resultSlice
-		for _, foreign := range resultSlice {
-			if foreign.R == nil {
-				foreign.R = &userProfileR{}
-			}
-			foreign.R.User = object
-		}
+	if len(resultSlice) == 0 {
 		return nil
 	}
 
-	for _, foreign := range resultSlice {
-		for _, local := range slice {
+	if singular {
+		foreign := resultSlice[0]
+		object.R.UserProfile = foreign
+		if foreign.R == nil {
+			foreign.R = &userProfileR{}
+		}
+		foreign.R.User = object
+	}
+
+	for _, local := range slice {
+		for _, foreign := range resultSlice {
 			if local.ID == foreign.UserID {
-				local.R.UserProfiles = append(local.R.UserProfiles, foreign)
+				local.R.UserProfile = foreign
 				if foreign.R == nil {
 					foreign.R = &userProfileR{}
 				}
@@ -371,55 +393,52 @@ func (userL) LoadUserProfiles(ctx context.Context, e boil.ContextExecutor, singu
 	return nil
 }
 
-// AddUserProfiles adds the given related objects to the existing relationships
-// of the user, optionally inserting them as new records.
-// Appends related to o.R.UserProfiles.
-// Sets related.R.User appropriately.
-func (o *User) AddUserProfiles(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*UserProfile) error {
+// SetUserProfile of the user to the related item.
+// Sets o.R.UserProfile to related.
+// Adds o to related.R.User.
+func (o *User) SetUserProfile(ctx context.Context, exec boil.ContextExecutor, insert bool, related *UserProfile) error {
 	var err error
-	for _, rel := range related {
-		if insert {
-			rel.UserID = o.ID
-			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
-				return errors.Wrap(err, "failed to insert into foreign table")
-			}
-		} else {
-			updateQuery := fmt.Sprintf(
-				"UPDATE \"user_profiles\" SET %s WHERE %s",
-				strmangle.SetParamNames("\"", "\"", 1, []string{"user_id"}),
-				strmangle.WhereClause("\"", "\"", 2, userProfilePrimaryKeyColumns),
-			)
-			values := []interface{}{o.ID, rel.ID}
 
-			if boil.IsDebug(ctx) {
-				writer := boil.DebugWriterFrom(ctx)
-				fmt.Fprintln(writer, updateQuery)
-				fmt.Fprintln(writer, values)
-			}
-			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
-				return errors.Wrap(err, "failed to update foreign table")
-			}
+	if insert {
+		related.UserID = o.ID
 
-			rel.UserID = o.ID
+		if err = related.Insert(ctx, exec, boil.Infer()); err != nil {
+			return errors.Wrap(err, "failed to insert into foreign table")
 		}
+	} else {
+		updateQuery := fmt.Sprintf(
+			"UPDATE \"user_profiles\" SET %s WHERE %s",
+			strmangle.SetParamNames("\"", "\"", 1, []string{"user_id"}),
+			strmangle.WhereClause("\"", "\"", 2, userProfilePrimaryKeyColumns),
+		)
+		values := []interface{}{o.ID, related.ID}
+
+		if boil.IsDebug(ctx) {
+			writer := boil.DebugWriterFrom(ctx)
+			fmt.Fprintln(writer, updateQuery)
+			fmt.Fprintln(writer, values)
+		}
+		if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+			return errors.Wrap(err, "failed to update foreign table")
+		}
+
+		related.UserID = o.ID
 	}
 
 	if o.R == nil {
 		o.R = &userR{
-			UserProfiles: related,
+			UserProfile: related,
 		}
 	} else {
-		o.R.UserProfiles = append(o.R.UserProfiles, related...)
+		o.R.UserProfile = related
 	}
 
-	for _, rel := range related {
-		if rel.R == nil {
-			rel.R = &userProfileR{
-				User: o,
-			}
-		} else {
-			rel.R.User = o
+	if related.R == nil {
+		related.R = &userProfileR{
+			User: o,
 		}
+	} else {
+		related.R.User = o
 	}
 	return nil
 }

@@ -1,3 +1,5 @@
 type Mutation {
+    createOTP(req: CreateOTPRequest!): CreateOTPResponse!
+    activateUser(req: ActivateUserRequest!): ActivateUserResponse!
     updateUserProfile(req: UpdateUserProfileRequest!): UserProfile!
 }

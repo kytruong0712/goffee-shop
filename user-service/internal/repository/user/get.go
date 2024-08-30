@@ -5,11 +5,12 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+
 	"github.com/kytruong0712/goffee-shop/user-service/internal/model"
 	"github.com/kytruong0712/goffee-shop/user-service/internal/repository/dbmodel"
-	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 
 	pkgerrors "github.com/pkg/errors"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
 // CheckUserExistsByPhoneNumber checks user exists by phone number
@@ -52,21 +53,24 @@ func (i impl) GetUserByPhoneNumber(ctx context.Context, phoneNumber string) (mod
 
 func toUserModel(u dbmodel.User) model.User {
 	return model.User{
-		ID:          u.ID,
-		IamID:       u.IamID,
-		FullName:    u.FullName,
-		PhoneNumber: u.PhoneNumber,
-		Password:    u.PasswordHashed,
-		Status:      model.UserStatus(u.Status),
-		CreatedAt:   u.CreatedAt,
-		UpdatedAt:   u.UpdatedAt,
+		ID:                  u.ID,
+		IamID:               u.IamID,
+		FullName:            u.FullName,
+		PhoneNumber:         u.PhoneNumber,
+		PhoneNumberVerified: u.PhoneNumberVerified,
+		Password:            u.HashedPassword,
+		OTP:                 u.HashedOtp.String,
+		Status:              model.UserStatus(u.Status),
+		OTPExpiryTime:       u.OtpExpiryTime.Time,
+		CreatedAt:           u.CreatedAt,
+		UpdatedAt:           u.UpdatedAt,
 	}
 }
 
 // GetUserProfileByIamID get user profile by IamID
 func (i impl) GetUserProfileByIamID(ctx context.Context, iamID int64) (model.UserProfile, error) {
 	user, err := dbmodel.Users(qm.Load(
-		dbmodel.UserRels.UserProfiles),
+		dbmodel.UserRels.UserProfile),
 		qm.Where(fmt.Sprintf("%v =", dbmodel.UserColumns.IamID), iamID)).One(ctx, i.dbConn)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -76,11 +80,11 @@ func (i impl) GetUserProfileByIamID(ctx context.Context, iamID int64) (model.Use
 		return model.UserProfile{}, pkgerrors.WithStack(err)
 	}
 
-	if user.R == nil || user.R.UserProfiles == nil || len(user.R.UserProfiles) <= 0 {
+	if user.R == nil || user.R.UserProfile == nil {
 		return model.UserProfile{}, pkgerrors.WithStack(ErrNoRows)
 	}
 
-	return toUserProfileModel(*user.R.UserProfiles[0]), nil
+	return toUserProfileModel(*user.R.UserProfile), nil
 }
 
 // GetUserProfileByID get user profile by ID
@@ -100,7 +104,7 @@ func (i impl) GetUserProfileByID(ctx context.Context, id int64) (model.UserProfi
 // GetUserWithProfileByIamID get user and profile by Iam ID
 func (i impl) GetUserWithProfileByIamID(ctx context.Context, iamID int64) (model.UserWithProfile, error) {
 	user, err := dbmodel.Users(qm.Load(
-		dbmodel.UserRels.UserProfiles),
+		dbmodel.UserRels.UserProfile),
 		qm.Where(fmt.Sprintf("%v=?", dbmodel.UserColumns.IamID), iamID)).One(ctx, i.dbConn)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -114,8 +118,8 @@ func (i impl) GetUserWithProfileByIamID(ctx context.Context, iamID int64) (model
 		User: toUserModel(*user),
 	}
 
-	if user.R != nil && user.R.UserProfiles != nil || len(user.R.UserProfiles) > 0 {
-		profile := toUserProfileModel(*user.R.UserProfiles[0])
+	if user.R != nil && user.R.UserProfile != nil {
+		profile := toUserProfileModel(*user.R.UserProfile)
 		userWithProfileModel.Profile = &profile
 	}
 

@@ -18,7 +18,7 @@ func (p UserProfile) Email() string {
 	return p.m.Email
 }
 
-func (p UserProfile) Gender() model.GenderType {
+func (p UserProfile) GenderType() model.GenderType {
 	return p.m.Gender
 }
 

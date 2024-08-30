@@ -3,7 +3,7 @@ package user
 import (
 	"context"
 
-	"github.com/kytruong0712/goffee-shop/api-gateway/internal/gateway/grpcclient/protogen/users"
+	"github.com/kytruong0712/goffee-shop/api-gateway/internal/gateway/user/protobuf"
 	"github.com/kytruong0712/goffee-shop/api-gateway/internal/model"
 )
 
@@ -15,7 +15,7 @@ type LoginInput struct {
 
 // Login authenticates user credential
 func (i impl) Login(ctx context.Context, inp LoginInput) (model.LoginResponse, error) {
-	rs, err := i.grpcClient.UserServiceClient().Login(ctx, &users.LoginRequest{
+	rs, err := i.userGwy.Login(ctx, &protobuf.LoginRequest{
 		PhoneNumber: inp.PhoneNumber,
 		Password:    inp.Password,
 	})

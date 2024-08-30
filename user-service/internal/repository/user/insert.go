@@ -42,7 +42,7 @@ func (i impl) InsertUser(ctx context.Context, input model.User) (model.User, err
 		IamID:          iamID,
 		FullName:       input.FullName,
 		PhoneNumber:    input.PhoneNumber,
-		PasswordHashed: input.Password,
+		HashedPassword: input.Password,
 		Status:         input.Status.String(),
 	}
 

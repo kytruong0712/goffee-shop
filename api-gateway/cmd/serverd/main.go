@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/kytruong0712/goffee-shop/api-gateway/cmd/banner"
-	"github.com/kytruong0712/goffee-shop/api-gateway/internal/controller/user"
-	"github.com/kytruong0712/goffee-shop/api-gateway/internal/gateway/grpcclient"
+	userCtrl "github.com/kytruong0712/goffee-shop/api-gateway/internal/controller/user"
+	"github.com/kytruong0712/goffee-shop/api-gateway/internal/gateway/user"
 	"github.com/kytruong0712/goffee-shop/api-gateway/internal/infra/config"
 	"github.com/kytruong0712/goffee-shop/api-gateway/internal/infra/httpserver"
 	"github.com/kytruong0712/goffee-shop/api-gateway/internal/infra/iam"
@@ -28,12 +28,12 @@ func main() {
 	ctx := context.Background()
 	ctx = iam.SetConfigToContext(ctx, cfg.IamCfg)
 
-	client, err := initGRPCClient(cfg)
+	userGwy, err := initUserGateway(cfg)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	rtr, err := initRouter(ctx, user.New(client))
+	rtr, err := initRouter(ctx, userCtrl.New(userGwy))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -51,7 +51,7 @@ func initConfig() (config.Config, error) {
 	return cfg, nil
 }
 
-func initGRPCClient(cfg config.Config) (grpcclient.ServiceClient, error) {
+func initUserGateway(cfg config.Config) (user.Gateway, error) {
 	conn, err := grpc.NewClient(
 		cfg.ServerCfg.UserServiceAddr,
 		grpc.WithInsecure(),
@@ -66,10 +66,10 @@ func initGRPCClient(cfg config.Config) (grpcclient.ServiceClient, error) {
 		return nil, err
 	}
 
-	return grpcclient.New(conn), nil
+	return user.New(conn), nil
 }
 
-func initRouter(ctx context.Context, userCtrl user.Controller) (router, error) {
+func initRouter(ctx context.Context, userCtrl userCtrl.Controller) (router, error) {
 	return router{
 		ctx:         ctx,
 		corsOrigins: []string{"*"},

@@ -2,13 +2,14 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"log"
+	"time"
 
 	"github.com/kytruong0712/goffee-shop/user-service/cmd/banner"
-	"github.com/kytruong0712/goffee-shop/user-service/internal/controller/user"
-	grpcSvc "github.com/kytruong0712/goffee-shop/user-service/internal/handler/grpcserver"
-	"github.com/kytruong0712/goffee-shop/user-service/internal/handler/grpcserver/protogen/users"
+	userCtrl "github.com/kytruong0712/goffee-shop/user-service/internal/controller/user"
+	"github.com/kytruong0712/goffee-shop/user-service/internal/gateway/notification"
+	grpcSvc "github.com/kytruong0712/goffee-shop/user-service/internal/handler/grpc"
+	"github.com/kytruong0712/goffee-shop/user-service/internal/handler/grpc/protobuf"
 	"github.com/kytruong0712/goffee-shop/user-service/internal/infra/config"
 	"github.com/kytruong0712/goffee-shop/user-service/internal/infra/db/pg"
 	grpcSvr "github.com/kytruong0712/goffee-shop/user-service/internal/infra/protocols/grpc"
@@ -16,6 +17,7 @@ import (
 	"github.com/kytruong0712/goffee-shop/user-service/internal/repository/generator"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/backoff"
 )
 
 func main() {
@@ -40,7 +42,14 @@ func main() {
 	}
 	defer conn.Close()
 
-	startingGRPCServer(cfg, conn)
+	notificationGwy, err := initNotificationGateway(cfg)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	userCtrl := userCtrl.New(cfg.IamConfig, notificationGwy, repository.New(conn))
+
+	startingGRPCServer(cfg, userCtrl)
 }
 
 func initConfig() (config.Config, error) {
@@ -52,20 +61,31 @@ func initConfig() (config.Config, error) {
 	return cfg, nil
 }
 
-func initGRPCServer() *grpc.Server {
-	grpcServer := grpc.NewServer()
+func initNotificationGateway(cfg config.Config) (notification.Gateway, error) {
+	conn, err := grpc.NewClient(
+		"notification-service:50052", //cfg.ServerCfg.NotificationServiceAddr,
+		grpc.WithInsecure(),
+		grpc.WithConnectParams(grpc.ConnectParams{
+			Backoff: backoff.Config{
+				BaseDelay:  time.Second,
+				Multiplier: 1.5,
+				MaxDelay:   5 * time.Second,
+			},
+		}))
+	if err != nil {
+		return nil, err
+	}
 
-	return grpcServer
+	return notification.New(conn), nil
 }
 
-func startingGRPCServer(cfg config.Config, conn *sql.DB) {
+func initGRPCServer() *grpc.Server {
+	return grpc.NewServer()
+}
+
+func startingGRPCServer(cfg config.Config, userCtrl userCtrl.Controller) {
 	serv := initGRPCServer()
-
-	repo := repository.New(conn)
-	userCtrl := user.New(cfg.IamConfig, repo)
-
-	serviceServer := grpcSvc.New(userCtrl)
-	users.RegisterUserServiceServer(serv, serviceServer.UserServiceServer())
+	protobuf.RegisterUserServer(serv, grpcSvc.New(userCtrl))
 	log.Printf("Started user service on %v", cfg.ServerCfg.ServerAddr)
 	grpcSvr.Start(serv, cfg.ServerCfg.ServerAddr)
 }

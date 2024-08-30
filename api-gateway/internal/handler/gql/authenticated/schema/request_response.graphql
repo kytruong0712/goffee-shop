@@ -1,0 +1,27 @@
+input UpdateUserProfileRequest {
+    iamID: Int64!
+    email: String
+    genderType: GenderType
+    dateOfBirth: Time
+}
+
+input CreateOTPRequest {
+    iamID: Int64!
+    countryCode: String!
+    phoneNumber: String!
+}
+
+type CreateOTPResponse {
+    status: String!
+    message: String!
+}
+
+input ActivateUserRequest {
+    phoneNumber: String!
+    otp: String!
+}
+
+type ActivateUserResponse {
+    status: String!
+    message: String!
+}

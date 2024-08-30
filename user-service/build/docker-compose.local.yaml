@@ -47,6 +47,7 @@ services:
     environment:
       PG_URL: postgres://postgres:postgres@database:5432/user-service-pg?sslmode=disable
       SERVER_ADDR: 0.0.0.0:50051
+      NOTIFICATION_SERVICE_ADDR: notification-service:50052
       JWT_KEY: "CCO3rTNkzj5ll9JogQW5"
 volumes:
   data:
