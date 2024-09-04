@@ -1,25 +1,25 @@
 services:
-  user-service-database:
-    container_name: user-service-pg-local
+  menu-service-database:
+    container_name: menu-service-pg-local
     image: postgres:15-alpine
     restart: "no"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: user-service-pg
+      POSTGRES_DB: menu-service-pg
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready" ]
       interval: 10s
       timeout: 10s
       retries: 3
     ports:
-      - "5433:5432"
+      - "5434:5432"
     volumes:
-      - user-service-data:/var/lib/postgresql/data
+      - menu-service-data:/var/lib/postgresql/data
     networks:
       - goffee-shop-network
 
-  user-service-pg-migrate:
+  menu-service-pg-migrate:
     image: migrate/migrate:v4.15.2
     profiles: [ "tools" ]
     volumes:
@@ -30,36 +30,35 @@ services:
         "-path",
         "/migrations",
         "-database",
-        "postgres://postgres:postgres@user-service-database:5432/user-service-pg?sslmode=disable",
+        "postgres://postgres:postgres@menu-service-database:5432/menu-service-pg?sslmode=disable",
       ]
     command: [ "up" ]
     depends_on:
-      user-service-database:
+      menu-service-database:
         condition: service_healthy
     networks:
       - goffee-shop-network
 
-  user-service:
-    container_name: user-service-go-local
+  menu-service:
+    container_name: menu-service-go-local
     image: golang:latest
-    working_dir: /user-service
+    working_dir: /menu-service
     volumes:
-      - ../:/user-service
+      - ../:/menu-service
     command: go run -mod=vendor cmd/serverd/main.go
     ports:
       - "50051:50051"
     depends_on:
-      - user-service-database
+      - menu-service-database
     environment:
-      PG_URL: postgres://postgres:postgres@database:5432/user-service-pg?sslmode=disable
-      SERVER_ADDR: 0.0.0.0:50051
-      NOTIFICATION_SERVICE_ADDR: notification-service:50052
-      JWT_KEY: "CCO3rTNkzj5ll9JogQW5"
+      PG_URL: postgres://postgres:postgres@database:5432/menu-service-pg?sslmode=disable
+      SERVER_ADDR: 0.0.0.0:50053
     networks:
       - goffee-shop-network
 
 volumes:
-  user-service-data:
+  menu-service-data:
 
 networks:
   goffee-shop-network:
+

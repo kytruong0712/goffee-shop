@@ -2,8 +2,8 @@
 # Env Variables
 # ----------------------------
 PROJECT_NAME ?= "goffee-shop"
-DATABASE_CONTAINER ?= user-service-database
-API_CONTAINER ?= user-service
+DATABASE_CONTAINER ?= menu-service-database
+API_CONTAINER ?= menu-service
 DOCKER_COMPOSE_FILE ?= build/docker-compose.local.yaml
 
 ## run: starts containers to run api server
@@ -43,7 +43,7 @@ new-migration-file:
 ## pg-migrate: executes latest migration files
 pg-migrate:
 	@echo Running migration
-	docker-compose -f ${DOCKER_COMPOSE_FILE} -p=${PROJECT_NAME} --profile tools run --rm user-service-pg-migrate up
+	docker-compose -f ${DOCKER_COMPOSE_FILE} -p=${PROJECT_NAME} --profile tools run --rm menu-service-pg-migrate up
 	@echo Migration done!
 
 # pg-drop: drop the db tables then run the migration
@@ -65,9 +65,6 @@ protoc-handler:
 	cd internal/handler/grpc/protobuf && protoc \
 	--go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative \
 	./*.proto
-
-kafka:
-	docker-compose -f ${DOCKER_COMPOSE_FILE} -p=${PROJECT_NAME} up -d kafka
 
 ## down: removes all docker containers
 down:

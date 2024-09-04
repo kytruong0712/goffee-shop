@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS users (
     created_at               TIMESTAMP WITH TIME ZONE               NOT NULL DEFAULT NOW(),
     updated_at               TIMESTAMP WITH TIME ZONE               NOT NULL DEFAULT NOW(),
     otp_expiry_time          TIMESTAMP WITH TIME ZONE,
-    CONSTRAINT users_full_name_phone_number_index UNIQUE (full_name, phone_number)
+    CONSTRAINT users_full_name_phone_number_uindex UNIQUE (full_name, phone_number)
 );
 CREATE INDEX IF NOT EXISTS users_iam_id_index ON users(iam_id);
 
@@ -23,5 +23,6 @@ CREATE TABLE IF NOT EXISTS user_profiles (
     date_of_birth       TIMESTAMP,
     created_at          TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
     updated_at          TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
-    CONSTRAINT user_profiles_email_index UNIQUE (email)
+    CONSTRAINT user_profiles_email_uindex UNIQUE (email)
 );
+CREATE INDEX IF NOT EXISTS user_profiles_email_index ON user_profiles(email);
