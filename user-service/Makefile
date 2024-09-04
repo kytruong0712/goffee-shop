@@ -38,7 +38,7 @@ pg-create:
 
 ## Create a DB migration files e.g `make new-migration-file name=init`
 new-migration-file:
-	docker-compose -f ${DOCKER_COMPOSE_FILE} -p=${PROJECT_NAME} --profile tools run --rm migrate create -ext sql -dir /migrations $(name)
+	docker-compose -f ${DOCKER_COMPOSE_FILE} -p=${PROJECT_NAME} --profile tools run --rm user-service-pg-migrate create -ext sql -dir /migrations $(name)
 
 ## pg-migrate: executes latest migration files
 pg-migrate:
@@ -52,7 +52,7 @@ pg-redo: pg-drop pg-migrate
 ## pg-drop: reset db to blank
 pg-drop:
 	@echo Dropping database...
-	docker-compose -f ${DOCKER_COMPOSE_FILE} -p=${PROJECT_NAME} --profile tools run --rm migrate drop
+	docker-compose -f ${DOCKER_COMPOSE_FILE} -p=${PROJECT_NAME} --profile tools run --rm user-service-pg-migrate drop
 	@echo Done!
 
 ## Ex: make protoc-gateway name=notification

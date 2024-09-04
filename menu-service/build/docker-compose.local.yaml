@@ -51,7 +51,7 @@ services:
     depends_on:
       - menu-service-database
     environment:
-      PG_URL: postgres://postgres:postgres@database:5432/menu-service-pg?sslmode=disable
+      PG_URL: postgres://postgres:postgres@menu-service-database:5432/menu-service-pg?sslmode=disable
       SERVER_ADDR: 0.0.0.0:50053
     networks:
       - goffee-shop-network
