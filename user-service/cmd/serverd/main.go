@@ -1,18 +1,17 @@
 package main
 
 import (
-	"context"
 	"log"
 	"time"
 
 	"github.com/kytruong0712/goffee-shop/user-service/cmd/banner"
-	userCtrl "github.com/kytruong0712/goffee-shop/user-service/internal/controller/user"
+	userctrl "github.com/kytruong0712/goffee-shop/user-service/internal/controller/user"
 	"github.com/kytruong0712/goffee-shop/user-service/internal/gateway/notification"
-	grpcSvc "github.com/kytruong0712/goffee-shop/user-service/internal/handler/grpc"
+	grpcsvc "github.com/kytruong0712/goffee-shop/user-service/internal/handler/grpc"
 	"github.com/kytruong0712/goffee-shop/user-service/internal/handler/grpc/protobuf"
 	"github.com/kytruong0712/goffee-shop/user-service/internal/infra/config"
 	"github.com/kytruong0712/goffee-shop/user-service/internal/infra/db/pg"
-	grpcSvr "github.com/kytruong0712/goffee-shop/user-service/internal/infra/protocols/grpc"
+	grpcsvr "github.com/kytruong0712/goffee-shop/user-service/internal/infra/protocols/grpc"
 	"github.com/kytruong0712/goffee-shop/user-service/internal/repository"
 	"github.com/kytruong0712/goffee-shop/user-service/internal/repository/generator"
 
@@ -29,9 +28,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// rootCtx
-	_ = context.Background()
-
 	// Initial snowflake generator
 	generator.InitSnowflakeGenerators()
 
@@ -47,7 +43,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	userCtrl := userCtrl.New(cfg.IamConfig, notificationGwy, repository.New(conn))
+	userCtrl := userctrl.New(cfg.IamConfig, notificationGwy, repository.New(conn))
 
 	startingGRPCServer(cfg, userCtrl)
 }
@@ -63,7 +59,7 @@ func initConfig() (config.Config, error) {
 
 func initNotificationGateway(cfg config.Config) (notification.Gateway, error) {
 	conn, err := grpc.NewClient(
-		"notification-service:50052", //cfg.ServerCfg.NotificationServiceAddr,
+		cfg.ServerCfg.NotificationServiceAddr,
 		grpc.WithInsecure(),
 		grpc.WithConnectParams(grpc.ConnectParams{
 			Backoff: backoff.Config{
@@ -83,9 +79,9 @@ func initGRPCServer() *grpc.Server {
 	return grpc.NewServer()
 }
 
-func startingGRPCServer(cfg config.Config, userCtrl userCtrl.Controller) {
+func startingGRPCServer(cfg config.Config, userCtrl userctrl.Controller) {
 	serv := initGRPCServer()
-	protobuf.RegisterUserServer(serv, grpcSvc.New(userCtrl))
+	protobuf.RegisterUserServer(serv, grpcsvc.New(userCtrl))
 	log.Printf("Started user service on %v", cfg.ServerCfg.ServerAddr)
-	grpcSvr.Start(serv, cfg.ServerCfg.ServerAddr)
+	grpcsvr.Start(serv, cfg.ServerCfg.ServerAddr)
 }
